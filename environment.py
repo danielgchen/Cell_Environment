@@ -31,7 +31,7 @@ food = Food(canvas)  # allows us to click to add food
 for _ in range(initial_num_food):
     food.add_food_random()
 # create initial number of cells
-cells = [Cell(canvas, cell_cycle) for _ in range(initial_num_cells)]
+cells = [Cell(canvas, {'cell_cycle': cell_cycle}) for _ in range(initial_num_cells)]
 # prepare for cell number tracking
 with open(track_filename, 'wt') as f: f.writelines('round,clone,count\n')
 # circulate movements
@@ -50,7 +50,7 @@ while(len(cells) > 0):
         made_move = 0
         for cell in cells:
             if(cell.cell_alive):  # check if marked for death
-                if(cell.cell_cycle >= round_num):
+                if(cell.genetics['cell_cycle'] >= round_num):
                     cell.move()  # move the cell
                     n_eaten = food.eaten(cell)  # check if cell can eat food and how much
                     if(n_eaten > 0):  # only compute further actions if needed

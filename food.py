@@ -26,9 +26,10 @@ class Food:
         '''
         default function to add food to a given mouse click
         '''
-        # get position from mouse click event
+        # get random position
         x = np.random.uniform(0 + self.food_radius, window_width - self.food_radius)
-        y = np.random.uniform(0 + self.food_radius, window_height - self.food_radius)
+        # y = np.random.uniform(0 + self.food_radius, window_height - self.food_radius)
+        y = np.random.uniform(window_height * 0.4 + self.food_radius, window_height * 0.6 - self.food_radius)
         # call helper function
         self.add_food_custom(x,y)
 

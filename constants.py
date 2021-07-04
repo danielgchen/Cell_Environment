@@ -4,6 +4,13 @@ import numpy as np
 define all of the constants needed for the simulatons
 '''
 
+# define cell mutational rate for directionality
+# TODO incorporate this into the cell itself
+# TODO define limits in the constants file
+# TODO total mutation and directional weight mutation can be different
+# TODO define the chance of a mutation and the mutational change as separate entities
+cell_mutation_rate = 0.25  # chance for a mutation to occur
+cell_mutation_direction_weights = 0.25  # mutate the values by a max of X%
 # define the filename to track data in
 track_filename = 'track.txt'
 # define delay in time between rounds
@@ -15,7 +22,7 @@ initial_num_food = 25  # number of starting pieces of food
 # define food per round
 food_per_round = 5  # get new pieces of food per round
 # define initial cells
-initial_num_cells = 10  # how many cells do we start with
+initial_num_cells = 100  # how many cells do we start with
 # define time between actions for a cell
 cell_cycle = 1  # number of actions per round
 # define time for a cell to dies
@@ -71,3 +78,13 @@ def random_color():
     # create hex color %02X means convert to hexadecimal format
     hex_color = '#%02X%02X%02X' % (rand_rgb(),rand_rgb(),rand_rgb())
     return hex_color
+
+# define method to compute a randomized angle given certain weights in a dictionary form
+def derive_weighted_angle(directions):
+    '''
+    gets a preferential direction and weights it according to input
+    '''
+    x = directions['east'] - directions['west']
+    y = directions['north'] - directions['south']
+    angle = np.arctan2(y, x)  # compute angle
+    return angle
