@@ -1,4 +1,5 @@
 # import packages
+import pickle
 import pandas as pd
 import matplotlib.pyplot as plt
 # import constants
@@ -8,6 +9,14 @@ from constants import *
 reads in the tracking file and outputs out a plot of the cells across time
 '''
 
+# TOOD make this generalizable
+def convert_cells():
+    # read in data
+    data = pickle.load(open('track.pkl','rb'))
+    data = [val[2] for val in data]
+    df = pd.DataFrame(data)
+    df.to_csv('track.csv')
+    
 def analyze_history():
     # read in data
     df = pd.read_csv(track_filename)
@@ -23,3 +32,4 @@ def analyze_history():
 
 if __name__ == '__main__':
     analyze_history()
+    convert_cells()

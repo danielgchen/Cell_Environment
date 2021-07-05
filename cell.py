@@ -13,7 +13,7 @@ class Cell:
         '''
         # set given attributes
         self.canvas = canvas  # where we are drawing the cell
-        self.cell_color = random_color() if cell_color is None else cell_color
+        self.cell_color = get_rand_color() if cell_color is None else cell_color
         # TODO add MUTATIONAL RATE
         self.genetics = genetics  # contains cell cycle, and directionalties
         # set constant attributes
@@ -32,54 +32,43 @@ class Cell:
         '''
         create the cell for the first time
         '''
-        # create cell's position
-        if(init_center is None):
-            # plot the cell at a random position
-            # - define the constraints of our central x and y
-            x = np.random.uniform(0 + self.cell_radius, window_width - self.cell_radius)
-            y = np.random.uniform(0 + self.cell_radius, window_height - self.cell_radius)
-        else:
-            # plot the cell at the given location
-            x,y = init_center
+        # create cell's position (random if not given)
+        center = get_rand_coords(padding=self.cell_radius) if init_center is None else init_center
         # - specifies topleft(x,y) then bottomright(x,y)
-        tl_x,tl_y = x - self.cell_radius, y - self.cell_radius  # define top left
-        br_x,br_y = x + self.cell_radius, y + self.cell_radius  # define bottom right
+        tl_x,tl_y,br_x,br_y = get_oval_coords(center, self.cell_radius)
         self.cell = self.canvas.create_oval(tl_x, tl_y, br_x, br_y, fill=self.cell_color, outline='maroon')
-        self.center = x,y  # track the cell center to compute movements
-
+        self.cell_center = center  # track the cell center to compute movements
         # create cell's directions
         # - if needed generate random weightings
         if('cell_direction_weights' not in self.genetics):
-            self.genetics['cell_direction_weights'] = {}
-            for direction in ['north','east','south','west']:
-                # get a random percent
-                self.genetics['cell_direction_weights'][direction] = np.random.uniform(0, 1)
+            self.genetics['cell_direction_weights'] = [[get_rand_angle(),1]]
+        # get vision radius and vision nconsidered
+        if('cell_vision_radius' not in self.genetics):
+            self.genetics['cell_vision_radius'] = np.random.uniform(1.01, 3) * self.cell_radius  # 101-300% cell radius
+        if('cell_vision_nconsidered' not in self.genetics):
+            self.genetics['cell_vision_nconsidered'] = np.random.uniform(1, 3)  # 1-3 foods
 
-    def move(self):
+    def move(self, foods):
         '''
         move the cell for a certain step
         '''
+        # TODO get the cell to have variable memory of the past food locations?
         # compute new locations
-        # - get custom angle TODO add a randomized component to this
-        angle = derive_weighted_angle(self.genetics['cell_direction_weights'])
+        # - get angle
+        angle = get_weighted_mean(self.genetics['cell_direction_weights']) if len(foods) == 0 else get_weighted_mean(foods)
         # - get coordinates
-        curr_x,curr_y = self.center  # unpack arguments
-        new_x,new_y = create_coords(curr_x, curr_y, radius=self.cell_radius, angle=angle)
+        new_center = shift_coords(self.cell_center, radius=self.cell_radius, angle=angle)
+        self.cell_center = new_center
         # - add step to current_location
-        new_tl_x,new_tl_y = new_x - self.cell_radius, new_y - self.cell_radius  # define top left
-        new_br_x,new_br_y = new_x + self.cell_radius, new_y + self.cell_radius  # define bottom right
+        new_tl_x,new_tl_y,new_br_x,new_br_y = get_oval_coords(center=new_center, radius=self.cell_radius)
         # assign new coordinates
-        # self.canvas.create_line(curr_x, curr_y, new_x, new_y, fill=self.cell_color)   # to track history
-        self.center = new_x,new_y
         self.canvas.coords(self.cell, new_tl_x, new_tl_y, new_br_x, new_br_y)
-        # self.canvas.create_oval(new_tl_x, new_tl_y, new_br_x, new_br_y, fill=self.cell_color, outline='maroon')   # to track history
 
         # update cell attributes
         # - update cell health status
-        # TODO health status should be reflective of cell alive state
         self.cell_health -= self.cell_step * self.cell_metabolic_cost  # adjust for movement cost
         # - age the cell
-        self.cell_age += 1 / self.genetics['cell_cycle']  # as increased cell cycle means more moves per round
+        self.cell_age += 1  # as increased cell cycle means more moves per round more likekly to accrue fatal mutation
         # - check if cell needs to die
         if(self.cell_age > cell_age_of_death):
             self.cell_alive = False  # marked for apoptosis
@@ -103,25 +92,37 @@ class Cell:
         '''
         # copy current genetics
         genetics = copy.deepcopy(self.genetics)
+        # mutate genetic directionality
+        if(get_spin_outcome(cell_mutation_rate)):
+            # compute shift
+            max_shift = cell_mutation_direction_weights
+            shift = np.random.uniform(-max_shift, max_shift) * 2 * np.pi
+            # perform mutation
+            angle,weight = genetics['cell_direction_weights'][0]
+            genetics['cell_direction_weights'] = [[angle + shift,weight]]
+        # mutate cell vision radius
+        if(get_spin_outcome(cell_mutation_rate)):
+            # compute shift
+            max_shift = cell_mutation_vision_radius
+            shift = np.random.uniform(-max_shift, max_shift) * 1
+            # perform mutation
+            vision_radius = genetics['cell_vision_radius'] + shift
+            # - a cell needs to at least be able to see 1% of it's radius away but it cannot be a supervision cell so it maxes out at 10x
+            vision_radius = adjust_value(vision_radius, lower_limit=1.01*self.cell_radius, upper_limit=10*self.cell_radius, continous=False)
+            genetics['cell_vision_radius'] = vision_radius
+        # mutate cell vision n-considered
+        if(get_spin_outcome(cell_mutation_rate)):
+            # compute shift
+            max_shift = cell_mutation_vision_nconsidered
+            shift = np.random.uniform(-max_shift, max_shift) * 1
+            # perform mutation
+            vision_radius = genetics['cell_vision_nconsidered'] + shift
+            # - a cell should only consider 1-100 pieces of food or it gets out of hand
+            vision_radius = adjust_value(vision_radius, lower_limit=1, upper_limit=100, continous=False)
+            genetics['cell_vision_radius'] = vision_radius
         # TODO correlate mutational capacity to age, and cell cycle and maybe track movement and eating separately
         # TODO mutate cell color and cell cycle
         # TODO compute custom mutational rate
-        # mutate cell directionality
-        for direction in genetics['cell_direction_weights']:
-            # TODO set generalizable limits function in constants to control what values we can mutate too
-            # TODO possibly set the chance of death via incorrect mutation
-            # test if we will mutate value
-            # TODO put this in a function somewhere
-            mutate = np.random.uniform(0, 1) < cell_mutation_rate
-            if(mutate):
-                current_value = genetics['cell_direction_weights'][direction]
-                change_max = cell_mutation_direction_weights  # since these are percents we don't multiply
-                change_value = np.random.uniform(-change_max, change_max)
-                current_value += change_value
-                # TODO create generalizable method for limit testing
-                if(current_value < 0): current_value = 0  # make sure it is within bounds
-                elif(current_value > 1): current_value = 1  # make sure the value is reasonable
-                genetics['cell_direction_weights'][direction] = current_value + change_value
         return genetics
 
     def divide(self):
@@ -132,13 +133,12 @@ class Cell:
         self.cell_health -= cell_threshold_to_divide  # cost of proliferation
         # compute new locations
         # - get coordinates
-        curr_x,curr_y = self.center  # unpack arguments
-        new_x,new_y = create_coords(curr_x, curr_y, radius=self.cell_radius)
+        new_center= shift_coords(self.cell_center, radius=self.cell_radius)
         # create the new cell
         # - mutate the cell so the new cell can be different
         genetics = self.mutate()
         # - inherits the mutated traits of the original cell
-        cell = Cell(self.canvas, genetics, cell_color=self.cell_color, init_center=(new_x,new_y))
+        cell = Cell(self.canvas, genetics, cell_color=self.cell_color, init_center=new_center)
         return cell
 
     def die(self):

@@ -2,6 +2,7 @@
 from tkinter import *
 from tkinter import ttk
 import time
+import pickle  # TODO write cells
 from collections import Counter
 # import organisms
 from cell import *
@@ -51,8 +52,8 @@ while(len(cells) > 0):
         for cell in cells:
             if(cell.cell_alive):  # check if marked for death
                 if(cell.genetics['cell_cycle'] >= round_num):
-                    cell.move()  # move the cell
-                    n_eaten = food.eaten(cell)  # check if cell can eat food and how much
+                    cell.move(food.get_seen(cell))  # move the cell
+                    n_eaten = food.get_eaten(cell)  # check if cell can eat food and how much
                     if(n_eaten > 0):  # only compute further actions if needed
                         new_cell = cell.eat(n_eaten)  # check if cell can eat food
                         if(new_cell is not None):  # if the cell divided
@@ -70,6 +71,7 @@ while(len(cells) > 0):
     # prepare for next round
     total_rounds += 1  # track the number of rounds
     # record values
+    pickle.dump([(cell.cell_color, cell.cell_center, cell.cell_radius, cell.genetics) for cell in cells], open('track.pkl','wb'))
     cell_colors = Counter([cell.cell_color for cell in cells])
     for cell_color,count in cell_colors.items():
         with open(track_filename, 'at') as f: f.writelines(f'{total_rounds},{cell_color},{count}\n')
