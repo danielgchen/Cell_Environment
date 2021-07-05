@@ -13,10 +13,10 @@ reads in the tracking file and outputs out a plot of the cells across time
 def convert_cells():
     # read in data
     data = pickle.load(open('track.pkl','rb'))
-    data = [val[2] for val in data]
+    data = [val[3] for val in data]
     df = pd.DataFrame(data)
     df.to_csv('track.csv')
-    
+
 def analyze_history():
     # read in data
     df = pd.read_csv(track_filename)

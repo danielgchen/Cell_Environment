@@ -116,10 +116,10 @@ class Cell:
             max_shift = cell_mutation_vision_nconsidered
             shift = np.random.uniform(-max_shift, max_shift) * 1
             # perform mutation
-            vision_radius = genetics['cell_vision_nconsidered'] + shift
+            vision_nconsidered = genetics['cell_vision_nconsidered'] + shift
             # - a cell should only consider 1-100 pieces of food or it gets out of hand
-            vision_radius = adjust_value(vision_radius, lower_limit=1, upper_limit=100, continous=False)
-            genetics['cell_vision_radius'] = vision_radius
+            vision_nconsidered = adjust_value(vision_nconsidered, lower_limit=1, upper_limit=100, continous=False)
+            genetics['cell_vision_nconsidered'] = vision_nconsidered
         # TODO correlate mutational capacity to age, and cell cycle and maybe track movement and eating separately
         # TODO mutate cell color and cell cycle
         # TODO compute custom mutational rate
