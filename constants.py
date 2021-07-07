@@ -9,11 +9,12 @@ define all of the constants needed for the simulatons
 # TODO total mutation and directional weight mutation can be different
 # TODO define the chance of a mutation and the mutational change as separate entities
 cell_mutation_rate = 0.25  # chance for a mutation to occur
+cell_mutation_direction_remember = 0.25
 cell_mutation_direction_weights = 0.25  # mutate the values by a max of X%
 cell_mutation_vision_radius = 0.25  # mutate the values by a max of X%
 cell_mutation_vision_nconsidered = 0.25  # mutate the values by a max of X%
 # define the filename to track data in
-track_filename = 'track.txt'
+track_filename = 'track'
 # define delay in time between rounds
 round_delay = 0  # in seconds
 # define canvas size

@@ -16,6 +16,7 @@ class Food:
         # define key bindings
         self.canvas.bind('<Button-1>', self.add_food_click)
 
+
     def add_food_click(self, event):
         '''
         default function to add food to a given mouse click
@@ -24,6 +25,7 @@ class Food:
         center = event.x, event.y
         # call helper function
         self.add_food_custom(center)
+
 
     def add_food_random(self):
         '''
@@ -40,6 +42,7 @@ class Food:
         # call helper function
         self.add_food_custom((x,y))
 
+
     def add_food_custom(self, center):
         '''
         given an x and y coordinate add a piece of food given a constant food_radius
@@ -50,6 +53,7 @@ class Food:
         food = self.canvas.create_oval(tl_x, tl_y, br_x, br_y, fill='green', outline='forestgreen')
         # track the instantiated piece of food
         self.foods.append((food,center)) # add the object to track
+
 
     def get_detected(self, center, radius):
         '''
@@ -66,6 +70,7 @@ class Food:
             if(x >= ck_x_min and x <= ck_x_max and y >= ck_y_min and y <= ck_y_max):
                 valid_foods.append((food,(x,y)))
         return valid_foods
+
 
     def get_eaten(self, cell):
         '''
@@ -84,6 +89,7 @@ class Food:
                 self.foods.remove((food,(x,y)))
         return eaten
 
+
     def get_seen(self, cell):
         '''
         checks if a cell can see the food if so it reports the food and the distance
@@ -91,16 +97,16 @@ class Food:
         # set tracking variables
         seen = []
         # work through currently existing foods
-        valid_foods = self.get_detected(cell.cell_center, cell.genetics['cell_vision_radius'] + self.food_radius)
+        valid_foods = self.get_detected(cell.cell_center, cell.genetics['cell_vision_radius'] * cell.cell_radius + self.food_radius)
         for food,(x,y) in valid_foods:
-            cell_to_food_dist = get_distance(cell.cell_center,[x,y]) - cell.genetics['cell_vision_radius']
+            cell_to_food_dist = get_distance(cell.cell_center,[x,y]) - cell.genetics['cell_vision_radius'] * cell.cell_radius
             if(cell_to_food_dist <= self.food_radius):
                 # get angle from cell
                 y = y - cell.cell_center[1]
                 x = x - cell.cell_center[0]
                 angle = np.arctan2(y, x)
                 # get weight factor
-                vec_dist = angle, cell_to_food_dist + cell.genetics['cell_vision_radius']
+                vec_dist = angle, cell_to_food_dist + cell.genetics['cell_vision_radius'] * cell.cell_radius
                 seen.append(vec_dist)
         # filter for the top ones (i.e. min distance) that the cell considers
         seen = sorted(seen, key=lambda vec_dist: vec_dist[1])[:round(cell.genetics['cell_vision_nconsidered'])]

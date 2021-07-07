@@ -27,6 +27,7 @@ class Cell:
         # create the cell
         self.instantiate(init_center)
 
+
     # define key cellular functions
     def instantiate(self, init_center=None):
         '''
@@ -42,20 +43,68 @@ class Cell:
         # - if needed generate random weightings
         if('cell_direction_weights' not in self.genetics):
             self.genetics['cell_direction_weights'] = [[get_rand_angle(),1]]
+        # - if needed generate random chance of remembrance
+        if('cell_direction_remember' not in self.genetics):
+            self.genetics['cell_direction_remember'] = np.random.uniform(0, 1)  # any possibility
         # get vision radius and vision nconsidered
         if('cell_vision_radius' not in self.genetics):
-            self.genetics['cell_vision_radius'] = np.random.uniform(1.01, 3) * self.cell_radius  # 101-300% cell radius
+            self.genetics['cell_vision_radius'] = np.random.uniform(1.01, 3)  # 101-300% cell radius
         if('cell_vision_nconsidered' not in self.genetics):
             self.genetics['cell_vision_nconsidered'] = np.random.uniform(1, 3)  # 1-3 foods
+        # create mutational rate
+
+# # mutate genetic directionality
+# if(get_spin_outcome(cell_mutation_rate)):
+#     # compute shift
+#     max_shift = cell_mutation_direction_weights
+#     shift = np.random.uniform(-max_shift, max_shift) * 2 * np.pi
+#     # perform mutation
+#     angle,weight = genetics['cell_direction_weights'][0]
+#     genetics['cell_direction_weights'] = [[angle + shift,weight]]
+# # mutate cell remembrance
+# if(get_spin_outcome(cell_mutation_rate)):
+#     # compute shift
+#     max_shift = cell_mutation_direction_remember
+#     shift = np.random.uniform(-max_shift, max_shift) * 1
+#     # perform mutation
+#     remembrance = genetics['cell_direction_remember'] + shift
+#     # - a cell needs to at least be able to see 1% of it's radius away but it cannot be a supervision cell so it maxes out at 10x
+#     remembrance = adjust_value(remembrance, lower_limit=0, upper_limit=1, continous=False)
+#     genetics['cell_direction_remember'] = remembrance
+# # mutate cell vision radius
+# if(get_spin_outcome(cell_mutation_rate)):
+#     # compute shift
+#     max_shift = cell_mutation_vision_radius
+#     shift = np.random.uniform(-max_shift, max_shift) * 1
+#     # perform mutation
+#     vision_radius = genetics['cell_vision_radius'] + shift
+#     # - a cell needs to at least be able to see 1% of it's radius away but it cannot be a supervision cell so it maxes out at 10x
+#     vision_radius = adjust_value(vision_radius, lower_limit=1.01, upper_limit=10, continous=False)
+#     genetics['cell_vision_radius'] = vision_radius
+# # mutate cell vision n-considered
+# if(get_spin_outcome(cell_mutation_rate)):
+#     # compute shift
+#     max_shift = cell_mutation_vision_nconsidered
+#     shift = np.random.uniform(-max_shift, max_shift) * 1
+#     # perform mutation
+#     vision_nconsidered = genetics['cell_vision_nconsidered'] + shift
+#     # - a cell should only consider 1-100 pieces of food or it gets out of hand
+#     vision_nconsidered = adjust_value(vision_nconsidered, lower_limit=1, upper_limit=100, continous=False)
+#     genetics['cell_vision_nconsidered'] = vision_nconsidered
+
 
     def move(self, foods):
         '''
         move the cell for a certain step
         '''
-        # TODO get the cell to have variable memory of the past food locations?
         # compute new locations
         # - get angle
         angle = get_weighted_mean(self.genetics['cell_direction_weights']) if len(foods) == 0 else get_weighted_mean(foods)
+        # -- we also want to set a chance for whether the cell starts following previous food path
+        if(len(foods) > 0):
+            record = get_spin_outcome(self.genetics['cell_direction_remember'])
+            if(record):
+                self.genetics['cell_direction_weights'] = [[angle,1]]
         # - get coordinates
         new_center = shift_coords(self.cell_center, radius=self.cell_radius, angle=angle)
         self.cell_center = new_center
@@ -73,6 +122,7 @@ class Cell:
         if(self.cell_age > cell_age_of_death):
             self.cell_alive = False  # marked for apoptosis
 
+
     def eat(self, n_eaten):
         '''
         if we eat a piece of food then we revive ourselves by lowering our age
@@ -86,44 +136,38 @@ class Cell:
         else:
             return None  # no cell to provide
 
+
     def mutate(self):
         '''
-        perform mutations for the cell
+        perform mutations for the cell, for most mutations it is formatted via
+        [key, mutation_perc, mutation_magnitude, (lower_limit, upper_limit)] we also deal with special cases
         '''
         # copy current genetics
         genetics = copy.deepcopy(self.genetics)
-        # mutate genetic directionality
-        if(get_spin_outcome(cell_mutation_rate)):
-            # compute shift
-            max_shift = cell_mutation_direction_weights
-            shift = np.random.uniform(-max_shift, max_shift) * 2 * np.pi
-            # perform mutation
-            angle,weight = genetics['cell_direction_weights'][0]
-            genetics['cell_direction_weights'] = [[angle + shift,weight]]
-        # mutate cell vision radius
-        if(get_spin_outcome(cell_mutation_rate)):
-            # compute shift
-            max_shift = cell_mutation_vision_radius
-            shift = np.random.uniform(-max_shift, max_shift) * 1
-            # perform mutation
-            vision_radius = genetics['cell_vision_radius'] + shift
-            # - a cell needs to at least be able to see 1% of it's radius away but it cannot be a supervision cell so it maxes out at 10x
-            vision_radius = adjust_value(vision_radius, lower_limit=1.01*self.cell_radius, upper_limit=10*self.cell_radius, continous=False)
-            genetics['cell_vision_radius'] = vision_radius
-        # mutate cell vision n-considered
-        if(get_spin_outcome(cell_mutation_rate)):
-            # compute shift
-            max_shift = cell_mutation_vision_nconsidered
-            shift = np.random.uniform(-max_shift, max_shift) * 1
-            # perform mutation
-            vision_nconsidered = genetics['cell_vision_nconsidered'] + shift
-            # - a cell should only consider 1-100 pieces of food or it gets out of hand
-            vision_nconsidered = adjust_value(vision_nconsidered, lower_limit=1, upper_limit=100, continous=False)
-            genetics['cell_vision_nconsidered'] = vision_nconsidered
+        # pull out mutational rate and information
+        cell_mutation_rate = self.genetics['cell_mutation_rate']
+        cell_mutation_information = self.genetics['cell_mutation_magnitudes']
+        # mutate each cell
+        # - key = dictionary key in genetics
+        # - mutation_perc = % change to multiply by
+        # - mutation_magnitude = magnitude of the change we add or subtract by
+        # - limits = (lower_limit, upper_limit, continous) or None to adjust the values by
+        for key, mutation_perc, mutation_magnitude, limits in cell_mutation_information:
+            if(get_spin_outcome(cell_mutation_rate)):  # see if we need to mutate
+                # compute shift
+                shift = np.random.uniform(-mutation_perc, mutation_perc) * mutation_magnitude
+                # perform mutation
+                value = genetics[key] + shift
+                # adjust values
+                if(limits is not None):  # if it needs adjustment
+                    lower_limit,upper_limit,continous = limits  # unpack values
+                    value = adjust_value(value, lower_limit=lower_limit, upper_limit=upper_limit, continous=continous)
+                # save values
+                genetics[key] = value
         # TODO correlate mutational capacity to age, and cell cycle and maybe track movement and eating separately
         # TODO mutate cell color and cell cycle
-        # TODO compute custom mutational rate
         return genetics
+
 
     def divide(self):
         '''
@@ -140,6 +184,7 @@ class Cell:
         # - inherits the mutated traits of the original cell
         cell = Cell(self.canvas, genetics, cell_color=self.cell_color, init_center=new_center)
         return cell
+
 
     def die(self):
         '''

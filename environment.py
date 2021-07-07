@@ -34,7 +34,7 @@ for _ in range(initial_num_food):
 # create initial number of cells
 cells = [Cell(canvas, {'cell_cycle': cell_cycle}) for _ in range(initial_num_cells)]
 # prepare for cell number tracking
-with open(track_filename, 'wt') as f: f.writelines('round,clone,count\n')
+with open(track_filename + '.txt', 'wt') as f: f.writelines('round,clone,count\n')
 # circulate movements
 total_rounds = 0  # track the number of rounds we can have the cells survive in
 while(len(cells) > 0):
@@ -71,10 +71,10 @@ while(len(cells) > 0):
     # prepare for next round
     total_rounds += 1  # track the number of rounds
     # record values
-    pickle.dump([(cell.cell_color, cell.cell_center, cell.cell_radius, cell.genetics) for cell in cells], open('track.pkl','wb'))
+    pickle.dump([(cell.cell_color, cell.cell_center, cell.cell_radius, cell.genetics) for cell in cells], open(track_filename + '.pkl','wb'))
     cell_colors = Counter([cell.cell_color for cell in cells])
     for cell_color,count in cell_colors.items():
-        with open(track_filename, 'at') as f: f.writelines(f'{total_rounds},{cell_color},{count}\n')
+        with open(track_filename + '.txt', 'at') as f: f.writelines(f'{total_rounds},{cell_color},{count}\n')
     # rest until next round
     sleep_time = round_delay - (time.time() - start_time)
     if(sleep_time > 0):
