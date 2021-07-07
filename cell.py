@@ -40,57 +40,56 @@ class Cell:
         self.cell = self.canvas.create_oval(tl_x, tl_y, br_x, br_y, fill=self.cell_color, outline='maroon')
         self.cell_center = center  # track the cell center to compute movements
         # create cell's directions
+        # TODO abstract this into a generalizable method
         # - if needed generate random weightings
-        if('cell_direction_weights' not in self.genetics):
-            self.genetics['cell_direction_weights'] = [[get_rand_angle(),1]]
+        if('cell_direction_angle' not in self.genetics):
+            self.genetics['cell_direction_angle'] = get_rand_angle()
         # - if needed generate random chance of remembrance
         if('cell_direction_remember' not in self.genetics):
-            self.genetics['cell_direction_remember'] = np.random.uniform(0, 1)  # any possibility
+            self.genetics['cell_direction_remember'] = np.random.normal(loc=0.5, scale=0.25)  # CI=0-100%
+            self.genetics['cell_direction_remember'] = adjust_value(self.genetics['cell_direction_remember'], cell_direction_remember_llimit, cell_direction_remember_ulimit, continous=False)
         # get vision radius and vision nconsidered
         if('cell_vision_radius' not in self.genetics):
-            self.genetics['cell_vision_radius'] = np.random.uniform(1.01, 3)  # 101-300% cell radius
+            self.genetics['cell_vision_radius'] = np.random.normal(loc=2, scale=0.5)  # CI=100-300% cell radius
+            self.genetics['cell_vision_radius'] = adjust_value(self.genetics['cell_vision_radius'], cell_vision_radius_llimit, cell_vision_radius_ulimit, continous=False)
         if('cell_vision_nconsidered' not in self.genetics):
-            self.genetics['cell_vision_nconsidered'] = np.random.uniform(1, 3)  # 1-3 foods
+            self.genetics['cell_vision_nconsidered'] = np.random.normal(loc=2, scale=0.5)  # CI=1-3 foods
+            self.genetics['cell_vision_nconsidered'] = adjust_value(self.genetics['cell_vision_nconsidered'], cell_vision_nconsidered_llimit, cell_vision_nconsidered_ulimit, continous=False)
         # create mutational rate
-
-# # mutate genetic directionality
-# if(get_spin_outcome(cell_mutation_rate)):
-#     # compute shift
-#     max_shift = cell_mutation_direction_weights
-#     shift = np.random.uniform(-max_shift, max_shift) * 2 * np.pi
-#     # perform mutation
-#     angle,weight = genetics['cell_direction_weights'][0]
-#     genetics['cell_direction_weights'] = [[angle + shift,weight]]
-# # mutate cell remembrance
-# if(get_spin_outcome(cell_mutation_rate)):
-#     # compute shift
-#     max_shift = cell_mutation_direction_remember
-#     shift = np.random.uniform(-max_shift, max_shift) * 1
-#     # perform mutation
-#     remembrance = genetics['cell_direction_remember'] + shift
-#     # - a cell needs to at least be able to see 1% of it's radius away but it cannot be a supervision cell so it maxes out at 10x
-#     remembrance = adjust_value(remembrance, lower_limit=0, upper_limit=1, continous=False)
-#     genetics['cell_direction_remember'] = remembrance
-# # mutate cell vision radius
-# if(get_spin_outcome(cell_mutation_rate)):
-#     # compute shift
-#     max_shift = cell_mutation_vision_radius
-#     shift = np.random.uniform(-max_shift, max_shift) * 1
-#     # perform mutation
-#     vision_radius = genetics['cell_vision_radius'] + shift
-#     # - a cell needs to at least be able to see 1% of it's radius away but it cannot be a supervision cell so it maxes out at 10x
-#     vision_radius = adjust_value(vision_radius, lower_limit=1.01, upper_limit=10, continous=False)
-#     genetics['cell_vision_radius'] = vision_radius
-# # mutate cell vision n-considered
-# if(get_spin_outcome(cell_mutation_rate)):
-#     # compute shift
-#     max_shift = cell_mutation_vision_nconsidered
-#     shift = np.random.uniform(-max_shift, max_shift) * 1
-#     # perform mutation
-#     vision_nconsidered = genetics['cell_vision_nconsidered'] + shift
-#     # - a cell should only consider 1-100 pieces of food or it gets out of hand
-#     vision_nconsidered = adjust_value(vision_nconsidered, lower_limit=1, upper_limit=100, continous=False)
-#     genetics['cell_vision_nconsidered'] = vision_nconsidered
+        if('cell_mutational_rate' not in self.genetics):
+            self.genetics['cell_mutational_rate'] = np.random.normal(loc=cell_mutational_rate_mean, scale=cell_mutational_rate_std)  # CI=15-35% mutations <-- set in constants
+            self.genetics['cell_mutational_rate'] = adjust_value(self.genetics['cell_mutational_rate'], cell_mutational_rate_llimit, cell_mutational_rate_ulimit, continous=False)
+        # create mutational information
+        if('cell_mutation_information' not in self.genetics):
+            self.genetics['cell_mutation_information'] = []
+        # we identify the keys we want to mutate
+        mutational_keys = [key for key in self.genetics.keys() if key != 'cell_mutation_information']
+        # >>> special for now
+        mutational_keys = [key for key in mutational_keys if key != 'cell_cycle']
+        # <<<
+        for key in mutational_keys:
+            # > retrieve mutational percentage, also based around 25%
+            mutation_perc = np.random.normal(loc=cell_mutational_rate_mean, scale=cell_mutational_rate_std)  # CI=15-35% mutations <-- set in constants
+            mutation_perc = adjust_value(mutation_perc, cell_mutational_rate_llimit, cell_mutational_rate_ulimit, continous=False)
+            # > retrieve mutational magnitude (dealt via special cases)
+            if(key == 'cell_direction_angle'):
+                mutation_magnitude = 2 * np.pi  # we want to multiply by the circle
+            else:
+                mutation_magnitude = 1  # we use raw percentage
+            # > retrieve limits (also dealt via special cases)
+            if(key == 'cell_direction_remember'):
+                limits = cell_direction_remember_llimit, cell_direction_remember_ulimit, False
+            elif(key == 'cell_vision_radius'):
+                limits = cell_vision_radius_llimit, cell_vision_radius_ulimit, False
+            elif(key == 'cell_vision_nconsidered'):
+                limits = cell_vision_radius_llimit, cell_vision_nconsidered_ulimit, False
+            elif(key == 'cell_mutational_rate'):
+                limits = cell_mutational_rate_llimit, cell_mutational_rate_ulimit, False
+            else:
+                limits = None
+            # > create and record values
+            values = [key, mutation_perc, mutation_magnitude, limits]
+            self.genetics['cell_mutation_information'].append(values)
 
 
     def move(self, foods):
@@ -98,13 +97,14 @@ class Cell:
         move the cell for a certain step
         '''
         # compute new locations
+        # TODO add chance for pause
         # - get angle
-        angle = get_weighted_mean(self.genetics['cell_direction_weights']) if len(foods) == 0 else get_weighted_mean(foods)
+        angle = self.genetics['cell_direction_angle'] if len(foods) == 0 else get_weighted_mean(foods)
         # -- we also want to set a chance for whether the cell starts following previous food path
         if(len(foods) > 0):
             record = get_spin_outcome(self.genetics['cell_direction_remember'])
             if(record):
-                self.genetics['cell_direction_weights'] = [[angle,1]]
+                self.genetics['cell_direction_angle'] = angle
         # - get coordinates
         new_center = shift_coords(self.cell_center, radius=self.cell_radius, angle=angle)
         self.cell_center = new_center
@@ -145,15 +145,22 @@ class Cell:
         # copy current genetics
         genetics = copy.deepcopy(self.genetics)
         # pull out mutational rate and information
-        cell_mutation_rate = self.genetics['cell_mutation_rate']
-        cell_mutation_information = self.genetics['cell_mutation_magnitudes']
+        cell_mutational_rate = self.genetics['cell_mutational_rate']  # we want this to be unchanged during the mutation
+        cell_mutation_information = genetics['cell_mutation_information']  # we want this to be changed post-mutation
         # mutate each cell
         # - key = dictionary key in genetics
         # - mutation_perc = % change to multiply by
         # - mutation_magnitude = magnitude of the change we add or subtract by
         # - limits = (lower_limit, upper_limit, continous) or None to adjust the values by
-        for key, mutation_perc, mutation_magnitude, limits in cell_mutation_information:
-            if(get_spin_outcome(cell_mutation_rate)):  # see if we need to mutate
+        # > rearrange the information list to put mutational rate at the front
+        cell_mutation_information_front = [row for row in cell_mutation_information if row[0] == 'cell_mutational_rate']
+        cell_mutation_information_rest = [row for row in cell_mutation_information if row[0] != 'cell_mutational_rate']
+        cell_mutation_information = cell_mutation_information_front + cell_mutation_information_rest
+        del cell_mutation_information_front, cell_mutation_information_rest
+        # > process the mutations
+        for idx, (key, mutation_perc, mutation_magnitude, limits) in enumerate(cell_mutation_information):
+            # > mutate the attribute
+            if(get_spin_outcome(cell_mutational_rate)):  # see if we need to mutate
                 # compute shift
                 shift = np.random.uniform(-mutation_perc, mutation_perc) * mutation_magnitude
                 # perform mutation
@@ -164,6 +171,19 @@ class Cell:
                     value = adjust_value(value, lower_limit=lower_limit, upper_limit=upper_limit, continous=continous)
                 # save values
                 genetics[key] = value
+            # > mutate the mutational rates
+            # > we decide if we mutate these values based on the innate cell, but future
+            #   mutational values are determined via the new mutational value as they are future cell
+            if(get_spin_outcome(cell_mutational_rate)):  # see if we need to mutate
+                # compute shift - currently using a fraction of the cell's mutational rate
+                # TODO make this cell cycle linked something like * cell cycle
+                shift = np.random.uniform(0, 1) * genetics['cell_mutational_rate']
+                # perform mutation
+                value = mutation_perc + shift
+                # adjust values
+                value = adjust_value(value, lower_limit=0, upper_limit=1, continous=False)
+                # save values (1 = index of mutational perc)
+                cell_mutation_information[idx][1] = value
         # TODO correlate mutational capacity to age, and cell cycle and maybe track movement and eating separately
         # TODO mutate cell color and cell cycle
         return genetics

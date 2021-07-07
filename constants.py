@@ -4,15 +4,24 @@ import numpy as np
 define all of the constants needed for the simulatons
 '''
 
-# define cell mutational rate for directionality
-# TODO incorporate this into the cell itself
-# TODO total mutation and directional weight mutation can be different
-# TODO define the chance of a mutation and the mutational change as separate entities
-cell_mutation_rate = 0.25  # chance for a mutation to occur
-cell_mutation_direction_remember = 0.25
-cell_mutation_direction_weights = 0.25  # mutate the values by a max of X%
-cell_mutation_vision_radius = 0.25  # mutate the values by a max of X%
-cell_mutation_vision_nconsidered = 0.25  # mutate the values by a max of X%
+# define base mutational rate mean
+# > this represents the chance of mutation and the std represents the
+#   max change of all mutational rates as if we hit the max twice we should
+#   be able to exit the 95% confidence interval of normal mutations
+cell_mutational_rate_mean = 0.25
+cell_mutational_rate_std = 0.05
+# define cell mutational rate limits
+cell_mutational_rate_llimit = 0
+cell_mutational_rate_ulimit = 1
+# define cell directional remembrance limits
+cell_direction_remember_llimit = 0
+cell_direction_remember_ulimit = 1
+# define cell vision radius limits
+cell_vision_radius_llimit = 1.01
+cell_vision_radius_ulimit = 20
+# define cell vision nconsidered limits
+cell_vision_nconsidered_llimit = 1
+cell_vision_nconsidered_ulimit = 100
 # define the filename to track data in
 track_filename = 'track'
 # define delay in time between rounds
