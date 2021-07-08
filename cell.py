@@ -14,7 +14,6 @@ class Cell:
         # set given attributes
         self.canvas = canvas  # where we are drawing the cell
         self.cell_color = get_rand_color() if cell_color is None else cell_color
-        # TODO add MUTATIONAL RATE
         self.genetics = genetics  # contains cell cycle, and directionalties
         # set constant attributes
         self.cell_radius = cell_radius  # track how big the cell is
@@ -40,10 +39,14 @@ class Cell:
         self.cell = self.canvas.create_oval(tl_x, tl_y, br_x, br_y, fill=self.cell_color, outline='maroon')
         self.cell_center = center  # track the cell center to compute movements
         # create cell's directions
-        # TODO abstract this into a generalizable method
+        # TODO abstract this into a generalizable method via something in the constant function
         # - if needed generate random weightings
         if('cell_direction_angle' not in self.genetics):
             self.genetics['cell_direction_angle'] = get_rand_angle()
+        # - if needed generate random chance of remembrance
+        if('cell_cycle' not in self.genetics):
+            self.genetics['cell_cycle'] = np.random.normal(loc=1, scale=0.1)  # CI=0.8-1.2
+            self.genetics['cell_cycle'] = adjust_value(self.genetics['cell_cycle'], cell_cycle_llimit, cell_cycle_ulimit, continous=False)
         # - if needed generate random chance of remembrance
         if('cell_direction_remember' not in self.genetics):
             self.genetics['cell_direction_remember'] = np.random.normal(loc=0.5, scale=0.25)  # CI=0-100%
@@ -64,9 +67,6 @@ class Cell:
             self.genetics['cell_mutation_information'] = []
         # we identify the keys we want to mutate
         mutational_keys = [key for key in self.genetics.keys() if key != 'cell_mutation_information']
-        # >>> special for now
-        mutational_keys = [key for key in mutational_keys if key != 'cell_cycle']
-        # <<<
         for key in mutational_keys:
             # > retrieve mutational percentage, also based around 25%
             mutation_perc = np.random.normal(loc=cell_mutational_rate_mean, scale=cell_mutational_rate_std)  # CI=15-35% mutations <-- set in constants
@@ -77,7 +77,9 @@ class Cell:
             else:
                 mutation_magnitude = 1  # we use raw percentage
             # > retrieve limits (also dealt via special cases)
-            if(key == 'cell_direction_remember'):
+            if(key == 'cell_cycle'):
+                limits = cell_cycle_llimit, cell_cycle_ulimit, False
+            elif(key == 'cell_direction_remember'):
                 limits = cell_direction_remember_llimit, cell_direction_remember_ulimit, False
             elif(key == 'cell_vision_radius'):
                 limits = cell_vision_radius_llimit, cell_vision_radius_ulimit, False
@@ -176,7 +178,6 @@ class Cell:
             #   mutational values are determined via the new mutational value as they are future cell
             if(get_spin_outcome(cell_mutational_rate)):  # see if we need to mutate
                 # compute shift - currently using a fraction of the cell's mutational rate
-                # TODO make this cell cycle linked something like * cell cycle
                 shift = np.random.uniform(0, 1) * genetics['cell_mutational_rate']
                 # perform mutation
                 value = mutation_perc + shift

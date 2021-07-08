@@ -13,6 +13,9 @@ cell_mutational_rate_std = 0.05
 # define cell mutational rate limits
 cell_mutational_rate_llimit = 0
 cell_mutational_rate_ulimit = 1
+# define cell cycle limits
+cell_cycle_llimit = 0.5  # below one in case it wants to encode for a suppressive function
+cell_cycle_ulimit = 5
 # define cell directional remembrance limits
 cell_direction_remember_llimit = 0
 cell_direction_remember_ulimit = 1
@@ -34,8 +37,6 @@ initial_num_food = 25  # number of starting pieces of food
 food_per_round = 5  # get new pieces of food per round
 # define initial cells
 initial_num_cells = 100  # how many cells do we start with
-# define time between actions for a cell
-cell_cycle = 1  # number of actions per round
 # define time for a cell to dies
 cell_age_of_death = 50  # number of rounds total
 # compute food radius size

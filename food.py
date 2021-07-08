@@ -106,7 +106,10 @@ class Food:
                 x = x - cell.cell_center[0]
                 angle = np.arctan2(y, x)
                 # get weight factor
-                vec_dist = angle, cell_to_food_dist + cell.genetics['cell_vision_radius'] * cell.cell_radius
+                vec_dist = [angle, cell_to_food_dist + cell.genetics['cell_vision_radius'] * cell.cell_radius]
+                # take weight as inverse distance such that smaller distances have larger weights
+                assert vec_dist[1] >= 0  # so we can assume that distance is not a negative number
+                vec_dist[1] = 1 / vec_dist[1] if vec_dist[1] != 0 else 1e10  # artifically large to prevent divide by zero errors
                 seen.append(vec_dist)
         # filter for the top ones (i.e. min distance) that the cell considers
         seen = sorted(seen, key=lambda vec_dist: vec_dist[1])[:round(cell.genetics['cell_vision_nconsidered'])]
