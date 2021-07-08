@@ -9,6 +9,8 @@ from constants import *
 reads in the tracking file and outputs out a plot of the cells across time
 '''
 
+# TODO make cell information conversion more understandable and deal with mutational information
+# TODO deal with snapshots of data
 # TOOD make this generalizable
 def convert_cells():
     # read in data

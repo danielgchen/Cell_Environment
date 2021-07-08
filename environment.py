@@ -36,6 +36,8 @@ cells = [Cell(canvas) for _ in range(initial_num_cells)]
 # prepare for cell number tracking
 with open(track_filename + '.txt', 'wt') as f: f.writelines('round,clone,count\n')
 # circulate movements
+# TODO add round number
+# TODO clean up this code
 total_rounds = 0  # track the number of rounds we can have the cells survive in
 while(len(cells) > 0):
     # track time to complete a round

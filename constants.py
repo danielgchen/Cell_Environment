@@ -14,7 +14,7 @@ cell_mutational_rate_std = 0.05
 cell_mutational_rate_llimit = 1e-10
 cell_mutational_rate_ulimit = 1
 # define cell cycle limits
-cell_cycle_llimit = 0.5  # below one in case it wants to encode for a suppressive function
+cell_cycle_llimit = 0.5 + 1e-10  # below one in case it wants to encode for a suppressive function
 cell_cycle_ulimit = 5
 # define cell directional remembrance limits
 cell_direction_remember_llimit = 0
