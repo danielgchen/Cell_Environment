@@ -6,7 +6,9 @@ import copy
 from constants import *
 
 class Cell:
-    def __init__(self, canvas, genetics, cell_color=None, init_center=None):
+    # TODO link cell cycle to metabolic rate
+    # TODO track metabolic rate as an attribute
+    def __init__(self, canvas, genetics=None, cell_color=None, init_center=None):
         '''
         create a cell object that can be presented on a given center
         genetics consists of a dictionary specifying cell attributes
@@ -14,7 +16,7 @@ class Cell:
         # set given attributes
         self.canvas = canvas  # where we are drawing the cell
         self.cell_color = get_rand_color() if cell_color is None else cell_color
-        self.genetics = genetics  # contains cell cycle, and directionalties
+        self.genetics = {} if genetics is None else genetics  # contains all attributes
         # set constant attributes
         self.cell_radius = cell_radius  # track how big the cell is
         self.cell_health = cell_health  # food eaten - moves made

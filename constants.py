@@ -11,7 +11,7 @@ define all of the constants needed for the simulatons
 cell_mutational_rate_mean = 0.25
 cell_mutational_rate_std = 0.05
 # define cell mutational rate limits
-cell_mutational_rate_llimit = 0
+cell_mutational_rate_llimit = 1e-10
 cell_mutational_rate_ulimit = 1
 # define cell cycle limits
 cell_cycle_llimit = 0.5  # below one in case it wants to encode for a suppressive function
