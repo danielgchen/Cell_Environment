@@ -40,39 +40,24 @@ class Cell:
         tl_x,tl_y,br_x,br_y = get_oval_coords(center, self.cell_radius)
         self.cell = self.canvas.create_oval(tl_x, tl_y, br_x, br_y, fill=self.cell_color, outline='maroon')
         self.cell_center = center  # track the cell center to compute movements
-        # create cell's directions
-        # TODO abstract this into a generalizable method via something in the constant function
-        # - if needed generate random weightings
-        if('cell_direction_angle' not in self.genetics):
-            self.genetics['cell_direction_angle'] = get_rand_angle()
-        # - if needed generate random chance of remembrance
-        if('cell_cycle' not in self.genetics):
-            self.genetics['cell_cycle'] = np.random.normal(loc=1, scale=0.1)  # CI=0.8-1.2
-            self.genetics['cell_cycle'] = adjust_value(self.genetics['cell_cycle'], cell_cycle_llimit, cell_cycle_ulimit, continous=False)
-        # - if needed generate random chance of remembrance
-        if('cell_direction_remember' not in self.genetics):
-            self.genetics['cell_direction_remember'] = np.random.normal(loc=0.5, scale=0.25)  # CI=0-100%
-            self.genetics['cell_direction_remember'] = adjust_value(self.genetics['cell_direction_remember'], cell_direction_remember_llimit, cell_direction_remember_ulimit, continous=False)
-        # get vision radius and vision nconsidered
-        if('cell_vision_radius' not in self.genetics):
-            self.genetics['cell_vision_radius'] = np.random.normal(loc=2, scale=0.5)  # CI=100-300% cell radius
-            self.genetics['cell_vision_radius'] = adjust_value(self.genetics['cell_vision_radius'], cell_vision_radius_llimit, cell_vision_radius_ulimit, continous=False)
-        if('cell_vision_nconsidered' not in self.genetics):
-            self.genetics['cell_vision_nconsidered'] = np.random.normal(loc=2, scale=0.5)  # CI=1-3 foods
-            self.genetics['cell_vision_nconsidered'] = adjust_value(self.genetics['cell_vision_nconsidered'], cell_vision_nconsidered_llimit, cell_vision_nconsidered_ulimit, continous=False)
-        # create mutational rate
-        if('cell_mutational_rate' not in self.genetics):
-            self.genetics['cell_mutational_rate'] = np.random.normal(loc=cell_mutational_rate_mean, scale=cell_mutational_rate_std)  # CI=15-35% mutations <-- set in constants
-            self.genetics['cell_mutational_rate'] = adjust_value(self.genetics['cell_mutational_rate'], cell_mutational_rate_llimit, cell_mutational_rate_ulimit, continous=False)
+        # create cell attributes
+        for key, (function, function_params) in cell_instantiation_information.items():
+            if(key not in self.genetics):  # create attribute if it does not already exist
+                self.genetics[key] = function(**function_params)
         # create mutational information
         if('cell_mutation_information' not in self.genetics):
             self.genetics['cell_mutation_information'] = []
-        # we identify the keys we want to mutate
+        # - we identify the keys we want to mutate
         mutational_keys = [key for key in self.genetics.keys() if key != 'cell_mutation_information']
+        # - we subset for keys that are not in the current cell_mutation_information attribute
+        # TODO: store mutational information in dictionary format?
+        # TODO: also convert this into a format where we can store it in constants
+        current_mutational_keys = [row[0] for row in self.genetics['cell_mutation_information']]  # retrieve information
+        mutational_keys = [name for name in mutational_keys if name not in current_mutational_keys]
         for key in mutational_keys:
             # > retrieve mutational percentage, also based around 25%
-            mutation_perc = np.random.normal(loc=cell_mutational_rate_mean, scale=cell_mutational_rate_std)  # CI=15-35% mutations <-- set in constants
-            mutation_perc = adjust_value(mutation_perc, cell_mutational_rate_llimit, cell_mutational_rate_ulimit, continous=False)
+            mutation_function,mutation_params = cell_instantiation_information['cell_mutational_rate']
+            mutation_perc = mutation_function(**mutation_params)
             # > retrieve mutational magnitude (dealt via special cases)
             if(key == 'cell_direction_angle'):
                 mutation_magnitude = 2 * np.pi  # we want to multiply by the circle
