@@ -73,7 +73,7 @@ while(len(cells) > 0):
     # prepare for next round
     total_rounds += 1  # track the number of rounds
     # record values
-    pickle.dump([(cell.cell_color, cell.cell_center, cell.cell_radius, cell.genetics) for cell in cells], open(track_filename + '.pkl','wb'))
+    pickle.dump([(cell.cell_color, cell.cell_age, cell.cell_center, cell.cell_radius, cell.genetics) for cell in cells], open(track_filename + '.pkl','wb'))
     cell_colors = Counter([cell.cell_color for cell in cells])
     for cell_color,count in cell_colors.items():
         with open(track_filename + '.txt', 'at') as f: f.writelines(f'{total_rounds},{cell_color},{count}\n')

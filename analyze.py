@@ -14,8 +14,8 @@ def convert_cells():
     # read in data
     data = pickle.load(open(track_filename + '.pkl','rb'))
     # separate out the genetics from attributes
-    annos = [{'cell_color':val[0],'cell_center':val[1],'cell_radius':val[2]} for val in data]
-    data = [val[3] for val in data]
+    annos = [{'cell_color':val[0],'cell_age':val[1],'cell_center':val[2], 'cell_radius':val[3]} for val in data]
+    data = [val[4] for val in data]
     # convert to dataframe
     df_data = pd.DataFrame(data)
     df_annos = pd.DataFrame(annos)

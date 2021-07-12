@@ -74,6 +74,8 @@ class Cell:
                 limits = cell_vision_radius_llimit, cell_vision_nconsidered_ulimit, False
             elif(key == 'cell_mutational_rate'):
                 limits = cell_mutational_rate_llimit, cell_mutational_rate_ulimit, False
+            elif(key == 'cell_direction_pause'):
+                limits = cell_direction_pause_llimit, cell_direction_pause_ulimit, False
             else:
                 limits = None
             # > create and record values
@@ -87,12 +89,10 @@ class Cell:
         '''
         # test whether or not we need to pause or move
         if(get_spin_outcome(self.genetics['cell_direction_pause'])):
-            # TODO: determine if the cell needs to recover during pausing
-            # or does the cell just rest and lose energy
+            # assuming resting does not affect a cell's health but does age the cell
             pass
         else:
             # compute new locations
-            # TODO: add chance for pause
             # - get angle
             angle = self.genetics['cell_direction_angle'] if len(foods) == 0 else get_weighted_mean(foods)
             # -- we also want to set a chance for whether the cell starts following previous food path
@@ -111,11 +111,12 @@ class Cell:
             # update cell attributes
             # - update cell health status
             self.cell_health -= self.cell_step * self.cell_metabolic_cost  # adjust for movement cost
-            # - age the cell
-            self.cell_age += 1  # as increased cell cycle means more moves per round more likekly to accrue fatal mutation
-            # - check if cell needs to die
-            if(self.cell_age > cell_age_of_death):
-                self.cell_alive = False  # marked for apoptosis
+        # universal cell attribute updates
+        # - age the cell
+        self.cell_age += 1  # as increased cell cycle means more moves per round more likely to accrue fatal mutation
+        # - check if cell needs to die
+        if(self.cell_age > cell_age_of_death):
+            self.cell_alive = False  # marked for apoptosis
 
 
     def eat(self, n_eaten):
