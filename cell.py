@@ -51,7 +51,6 @@ class Cell:
         mutational_keys = [key for key in self.genetics.keys() if key != 'cell_mutation_information']
         # - we subset for keys that are not in the current cell_mutation_information attribute
         # TODO: store mutational information in dictionary format?
-        # TODO: also convert this into a format where we can store it in constants
         current_mutational_keys = [row[0] for row in self.genetics['cell_mutation_information']]  # retrieve information
         mutational_keys = [name for name in mutational_keys if name not in current_mutational_keys]
         for key in mutational_keys:
@@ -63,21 +62,12 @@ class Cell:
                 mutation_magnitude = 2 * np.pi  # we want to multiply by the circle
             else:
                 mutation_magnitude = 1  # we use raw percentage
-            # > retrieve limits (also dealt via special cases)
-            if(key == 'cell_cycle'):
-                limits = cell_cycle_llimit, cell_cycle_ulimit, False
-            elif(key == 'cell_direction_remember'):
-                limits = cell_direction_remember_llimit, cell_direction_remember_ulimit, False
-            elif(key == 'cell_vision_radius'):
-                limits = cell_vision_radius_llimit, cell_vision_radius_ulimit, False
-            elif(key == 'cell_vision_nconsidered'):
-                limits = cell_vision_radius_llimit, cell_vision_nconsidered_ulimit, False
-            elif(key == 'cell_mutational_rate'):
-                limits = cell_mutational_rate_llimit, cell_mutational_rate_ulimit, False
-            elif(key == 'cell_direction_pause'):
-                limits = cell_direction_pause_llimit, cell_direction_pause_ulimit, False
+            # > retrieve limits (dealt via the llimit and ulimit described above
+            key_params = cell_instantiation_information[key][1]  # retrieve its limit information
+            if('llimit' in key_params):  # if it has limits it should have llimit, ulimit and continous
+                limits = key_params['llimit'], key_params['ulimit'], key_params['continous']
             else:
-                limits = None
+                limits = None  # set it to none if no limits detected
             # > create and record values
             values = [key, mutation_perc, mutation_magnitude, limits]
             self.genetics['cell_mutation_information'].append(values)
@@ -149,6 +139,7 @@ class Cell:
         # - mutation_magnitude = magnitude of the change we add or subtract by
         # - limits = (lower_limit, upper_limit, continous) or None to adjust the values by
         # > rearrange the information list to put mutational rate at the front
+        # TODO arrange this to do cell mutational rate first and then the rest of the attributes
         cell_mutation_information_front = [row for row in cell_mutation_information if row[0] == 'cell_mutational_rate']
         cell_mutation_information_rest = [row for row in cell_mutation_information if row[0] != 'cell_mutational_rate']
         cell_mutation_information = cell_mutation_information_front + cell_mutation_information_rest
