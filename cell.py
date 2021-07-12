@@ -6,8 +6,8 @@ import copy
 from constants import *
 
 class Cell:
-    # TODO link cell cycle to metabolic rate
-    # TODO track metabolic rate as an attribute
+    # TODO: link cell cycle to metabolic rate
+    # TODO: track metabolic rate as an attribute
     def __init__(self, canvas, genetics=None, cell_color=None, init_center=None):
         '''
         create a cell object that can be presented on a given center
@@ -85,31 +85,37 @@ class Cell:
         '''
         move the cell for a certain step
         '''
-        # compute new locations
-        # TODO add chance for pause
-        # - get angle
-        angle = self.genetics['cell_direction_angle'] if len(foods) == 0 else get_weighted_mean(foods)
-        # -- we also want to set a chance for whether the cell starts following previous food path
-        if(len(foods) > 0):
-            record = get_spin_outcome(self.genetics['cell_direction_remember'])
-            if(record):
-                self.genetics['cell_direction_angle'] = angle
-        # - get coordinates
-        new_center = shift_coords(self.cell_center, radius=self.cell_radius, angle=angle)
-        self.cell_center = new_center
-        # - add step to current_location
-        new_tl_x,new_tl_y,new_br_x,new_br_y = get_oval_coords(center=new_center, radius=self.cell_radius)
-        # assign new coordinates
-        self.canvas.coords(self.cell, new_tl_x, new_tl_y, new_br_x, new_br_y)
+        # test whether or not we need to pause or move
+        if(get_spin_outcome(self.genetics['cell_direction_pause'])):
+            # TODO: determine if the cell needs to recover during pausing
+            # or does the cell just rest and lose energy
+            pass
+        else:
+            # compute new locations
+            # TODO: add chance for pause
+            # - get angle
+            angle = self.genetics['cell_direction_angle'] if len(foods) == 0 else get_weighted_mean(foods)
+            # -- we also want to set a chance for whether the cell starts following previous food path
+            if(len(foods) > 0):
+                record = get_spin_outcome(self.genetics['cell_direction_remember'])
+                if(record):
+                    self.genetics['cell_direction_angle'] = angle
+            # - get coordinates
+            new_center = shift_coords(self.cell_center, radius=self.cell_radius, angle=angle)
+            self.cell_center = new_center
+            # - add step to current_location
+            new_tl_x,new_tl_y,new_br_x,new_br_y = get_oval_coords(center=new_center, radius=self.cell_radius)
+            # assign new coordinates
+            self.canvas.coords(self.cell, new_tl_x, new_tl_y, new_br_x, new_br_y)
 
-        # update cell attributes
-        # - update cell health status
-        self.cell_health -= self.cell_step * self.cell_metabolic_cost  # adjust for movement cost
-        # - age the cell
-        self.cell_age += 1  # as increased cell cycle means more moves per round more likekly to accrue fatal mutation
-        # - check if cell needs to die
-        if(self.cell_age > cell_age_of_death):
-            self.cell_alive = False  # marked for apoptosis
+            # update cell attributes
+            # - update cell health status
+            self.cell_health -= self.cell_step * self.cell_metabolic_cost  # adjust for movement cost
+            # - age the cell
+            self.cell_age += 1  # as increased cell cycle means more moves per round more likekly to accrue fatal mutation
+            # - check if cell needs to die
+            if(self.cell_age > cell_age_of_death):
+                self.cell_alive = False  # marked for apoptosis
 
 
     def eat(self, n_eaten):
@@ -172,8 +178,8 @@ class Cell:
                 value = adjust_value(value, lower_limit=0, upper_limit=1, continous=False)
                 # save values (1 = index of mutational perc)
                 cell_mutation_information[idx][1] = value
-        # TODO correlate mutational capacity to age, and cell cycle and maybe track movement and eating separately
-        # TODO mutate cell color and cell cycle
+        # TODO: correlate mutational capacity to age, and cell cycle and maybe track movement and eating separately
+        # TODO: mutate cell color and cell cycle
         return genetics
 
 

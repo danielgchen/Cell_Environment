@@ -205,8 +205,16 @@ cell_vision_nconsidered_std = 0.5
 # define cell vision nconsidered limits
 cell_vision_nconsidered_llimit = 1
 cell_vision_nconsidered_ulimit = 100
+# define cell direction pause mean
+# TODO: make ti so cells only move if there is food nearby?
+cell_direction_pause_mean = 0.1  # always moving
+cell_direction_pause_std = 0.025
+# define cell direction pause limits
+cell_direction_pause_llimit = 0
+cell_direction_pause_ulimit = 1
 # define the cell's initial attributes and limitations
 cell_instantiation_information = {
+    'cell_direction_pause': [instantiate_from_distribution, {'distribution':np.random.normal, 'distribution_params':{'loc':cell_direction_pause_mean, 'scale':cell_direction_pause_std}, 'llimit':cell_direction_pause_llimit, 'ulimit':cell_direction_pause_ulimit, 'continous':False}],
     'cell_direction_angle': [get_rand_angle, {}],
     'cell_cycle': [instantiate_from_distribution, {'distribution':np.random.normal, 'distribution_params':{'loc':cell_cycle_mean, 'scale':cell_cycle_std}, 'llimit':cell_cycle_llimit, 'ulimit':cell_cycle_ulimit, 'continous':False}],
     'cell_direction_remember': [instantiate_from_distribution, {'distribution':np.random.normal, 'distribution_params':{'loc':cell_direction_remember_mean, 'scale':cell_direction_remember_std}, 'llimit':cell_direction_remember_llimit, 'ulimit':cell_direction_remember_ulimit, 'continous':False}],

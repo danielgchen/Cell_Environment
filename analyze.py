@@ -9,14 +9,18 @@ from constants import *
 reads in the tracking file and outputs out a plot of the cells across time
 '''
 
-# TODO make cell information conversion more understandable and deal with mutational information
-# TODO deal with snapshots of data
-# TOOD make this generalizable
+# TODO: deal with snapshots of data
 def convert_cells():
     # read in data
     data = pickle.load(open(track_filename + '.pkl','rb'))
+    # separate out the genetics from attributes
+    annos = [{'cell_color':val[0],'cell_center':val[1],'cell_radius':val[2]} for val in data]
     data = [val[3] for val in data]
-    df = pd.DataFrame(data)
+    # convert to dataframe
+    df_data = pd.DataFrame(data)
+    df_annos = pd.DataFrame(annos)
+    # combine and write
+    df = pd.concat([df_annos, df_data], axis=1)
     df.to_csv(track_filename + '.csv')
 
 def analyze_history():
