@@ -172,6 +172,22 @@ def instantiate_from_distribution(**kwargs):
     return value
 
 
+# define method to derive metabolic cost
+def get_metabolic_cost(base_cost, cell_age, cell_mutational_rate, cell_health):
+    '''
+    consider a negative feedback cycle where worse health increases metabolic cost
+    which makes it more difficult to derive food, age and mutational rate both increase strain
+    we take the average health / time unit to derive whether the cell leans towards starvation
+    '''
+    weights = [((cell_age / cell_age_of_death),1)]  # add in the percent of lifespan
+    weights += [(cell_mutational_rate,1)]  # add in mutational stress
+    # starving is bad so as - health = starving and larger cost = bad we change signs
+    # we add 1e-10 in case the cell_age == 0 which means it is the first step so cell_health also == 0
+    weights += [((-1 * cell_health / (cell_age + 1e-10)),1)]  # average health / time unit
+    metabolic_cost = get_weighted_mean(weights) * base_cost
+    return metabolic_cost
+
+
 # define base mutational rate mean
 # > this represents the chance of mutation and the std represents the
 #   max change of all mutational rates as if we hit the max twice we should

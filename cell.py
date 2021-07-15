@@ -74,6 +74,14 @@ class Cell:
             self.genetics['cell_mutation_information'].append(values)
 
 
+    def get_cell_metabolic_cost(self):
+        '''
+        calculates the weighted average between factors of stress and scales it by the metabolic cost
+        '''
+        metabolic_cost = get_metabolic_cost(self.cell_metabolic_cost, self.cell_age, self.genetics['cell_mutational_rate'], self.cell_health)
+        return metabolic_cost
+
+
     def move(self, foods):
         '''
         move the cell for a certain step
@@ -101,7 +109,7 @@ class Cell:
 
             # update cell attributes
             # - update cell health status
-            self.cell_health -= self.cell_step * self.cell_metabolic_cost  # adjust for movement cost
+            self.cell_health -= self.cell_step * self.get_cell_metabolic_cost()  # adjust for movement cost
         # universal cell attribute updates
         # - age the cell
         self.cell_age += 1  # as increased cell cycle means more moves per round more likely to accrue fatal mutation
@@ -116,7 +124,7 @@ class Cell:
         '''
         # post-eating food needs processing so we return a % of the food
         # TODO: create enzymes to manage this instead of metabolic cost
-        benefit = n_eaten * (1 - self.cell_metabolic_cost)
+        benefit = n_eaten * (1 - self.get_cell_metabolic_cost())
         self.cell_age -= benefit  # manages how long the cell may remain alive
         self.cell_health += benefit  # manages the cell's ability to proliferate
         # check if we need to divide
