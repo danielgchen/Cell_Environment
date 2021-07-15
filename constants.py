@@ -218,9 +218,9 @@ cell_instantiation_information = {
     'cell_direction_angle': [get_rand_angle, {}],
     'cell_cycle': [instantiate_from_distribution, {'distribution':np.random.normal, 'distribution_params':{'loc':cell_cycle_mean, 'scale':cell_cycle_std}, 'llimit':cell_cycle_llimit, 'ulimit':cell_cycle_ulimit, 'continous':False}],
     'cell_direction_remember': [instantiate_from_distribution, {'distribution':np.random.normal, 'distribution_params':{'loc':cell_direction_remember_mean, 'scale':cell_direction_remember_std}, 'llimit':cell_direction_remember_llimit, 'ulimit':cell_direction_remember_ulimit, 'continous':False}],
-    'cell_vision_radius': [instantiate_from_distribution, {'distribution':np.random.normal, 'distribution_params':{'loc':cell_vision_radius_mean, 'scale':cell_vision_radius_std}, 'llimit':cell_vision_radius_llimit, 'ulimit':cell_cycle_ulimit, 'continous':False}],
-    'cell_vision_nconsidered': [instantiate_from_distribution, {'distribution':np.random.normal, 'distribution_params':{'loc':cell_vision_nconsidered_mean, 'scale':cell_vision_nconsidered_std}, 'llimit':cell_vision_nconsidered_llimit, 'ulimit':cell_cycle_ulimit, 'continous':False}],
-    'cell_mutational_rate': [instantiate_from_distribution, {'distribution':np.random.normal, 'distribution_params':{'loc':cell_mutational_rate_mean, 'scale':cell_mutational_rate_std}, 'llimit':cell_mutational_rate_llimit, 'ulimit':cell_cycle_ulimit, 'continous':False}],
+    'cell_vision_radius': [instantiate_from_distribution, {'distribution':np.random.normal, 'distribution_params':{'loc':cell_vision_radius_mean, 'scale':cell_vision_radius_std}, 'llimit':cell_vision_radius_llimit, 'ulimit':cell_vision_radius_ulimit, 'continous':False}],
+    'cell_vision_nconsidered': [instantiate_from_distribution, {'distribution':np.random.normal, 'distribution_params':{'loc':cell_vision_nconsidered_mean, 'scale':cell_vision_nconsidered_std}, 'llimit':cell_vision_nconsidered_llimit, 'ulimit':cell_vision_nconsidered_ulimit, 'continous':False}],
+    'cell_mutational_rate': [instantiate_from_distribution, {'distribution':np.random.normal, 'distribution_params':{'loc':cell_mutational_rate_mean, 'scale':cell_mutational_rate_std}, 'llimit':cell_mutational_rate_llimit, 'ulimit':cell_mutational_rate_ulimit, 'continous':False}],
 }
 # define the filename to track data in
 track_filename = 'track'

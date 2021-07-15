@@ -50,6 +50,7 @@ class Cell:
         # - we identify the keys we want to mutate
         mutational_keys = [key for key in self.genetics.keys() if key != 'cell_mutation_information']
         # - we subset for keys that are not in the current cell_mutation_information attribute
+        # TODO: manage metabolic cost as a function of certain values, potentially age, mutational rate
         # TODO: store mutational information in dictionary format?
         current_mutational_keys = [row[0] for row in self.genetics['cell_mutation_information']]  # retrieve information
         mutational_keys = [name for name in mutational_keys if name not in current_mutational_keys]
@@ -113,8 +114,11 @@ class Cell:
         '''
         if we eat a piece of food then we revive ourselves by lowering our age
         '''
-        self.cell_age -= n_eaten  # manages how long the cell may remain alive
-        self.cell_health += n_eaten  # manages the cell's ability to proliferate
+        # post-eating food needs processing so we return a % of the food
+        # TODO: create enzymes to manage this instead of metabolic cost
+        benefit = n_eaten * (1 - self.cell_metabolic_cost)
+        self.cell_age -= benefit  # manages how long the cell may remain alive
+        self.cell_health += benefit  # manages the cell's ability to proliferate
         # check if we need to divide
         if(self.cell_health >= cell_threshold_to_divide):
             cell = self.divide()  # cell proliferates
