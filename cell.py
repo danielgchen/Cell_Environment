@@ -3,7 +3,7 @@ import numpy as np
 import time
 import copy
 # import constants
-from constants import *
+from utils import *
 
 class Cell:
     # TODO: link cell cycle to metabolic rate
@@ -23,6 +23,7 @@ class Cell:
         self.cell_metabolic_cost = cell_metabolic_cost  # the rate at which movement costs energy
         # TODO make changeable cell step
         self.cell_step = cell_step  # the size of the step the cell can take in any direction
+        self.cell_diffs = [get_rand_angle(), get_rand_angle()]  # TODO: change this to be some random thing
         # set baseline attributes
         self.cell_alive = True  # tracks if the cell is dead
         self.cell_age = 0  # related to cell alive, after a certain age (i.e. number of rounds) the cell dies
@@ -63,10 +64,7 @@ class Cell:
             mutation_function,mutation_params = cell_instantiation_information['cell_mutational_rate']
             mutation_perc = mutation_function(**mutation_params)
             # > retrieve mutational magnitude (dealt via special cases)
-            if(key == 'cell_direction_angle'):
-                mutation_magnitude = 2 * np.pi  # we want to multiply by the circle
-            else:
-                mutation_magnitude = 1  # we use raw percentage
+            mutation_magnitude = 1  # we use raw percentage
             # > retrieve limits (dealt via the llimit and ulimit described above
             key_params = cell_instantiation_information[key][1]  # retrieve its limit information
             if('llimit' in key_params):  # if it has limits it should have llimit, ulimit and continous
@@ -86,28 +84,26 @@ class Cell:
         return metabolic_cost
 
 
-    def move(self, foods):
+    def move(self, diffs):
         '''
         move the cell for a certain step
         '''
         # test whether or not we need to pause or move
-        if(get_spin_outcome(self.genetics['cell_direction_pause'])):
+        if(spin(self.genetics['cell_direction_pause'])):
             # assuming resting does not affect a cell's health but does age the cell
             pass
         else:
             # compute new locations
-            # - get angle
-            angle = self.genetics['cell_direction_angle'] if len(foods) == 0 else get_weighted_mean(foods)
-            # -- we also want to set a chance for whether the cell starts following previous food path
-            if(len(foods) > 0):
-                record = get_spin_outcome(self.genetics['cell_direction_remember'])
+            if(len(diffs) > 0):
+                record = spin(self.genetics['cell_direction_remember'])
                 if(record):
-                    self.genetics['cell_direction_angle'] = angle
+                    self.cell_diffs = diffs
+            else:
+                diffs = self.cell_diffs
             # - get coordinates
-            new_center = shift_coords(self.cell_center, radius=self.cell_radius, angle=angle)
-            self.cell_center = new_center
+            self.cell_center = np.array(diffs) + np.array(self.cell_center)
             # - add step to current_location
-            new_tl_x,new_tl_y,new_br_x,new_br_y = get_oval_coords(center=new_center, radius=self.cell_radius)
+            new_tl_x,new_tl_y,new_br_x,new_br_y = get_oval_coords(center=self.cell_center, radius=self.cell_radius)
             # assign new coordinates
             self.canvas.coords(self.cell, new_tl_x, new_tl_y, new_br_x, new_br_y)
 
@@ -161,7 +157,7 @@ class Cell:
         # > process the mutations
         for idx, (key, mutation_perc, mutation_magnitude, limits) in enumerate(cell_mutation_information):
             # > mutate the attribute
-            if(get_spin_outcome(cell_mutational_rate)):  # see if we need to mutate
+            if(spin(cell_mutational_rate)):  # see if we need to mutate
                 # compute shift
                 shift = np.random.uniform(-mutation_perc, mutation_perc) * mutation_magnitude
                 # perform mutation
@@ -169,19 +165,19 @@ class Cell:
                 # adjust values
                 if(limits is not None):  # if it needs adjustment
                     lower_limit,upper_limit,continous = limits  # unpack values
-                    value = adjust_value(value, lower_limit=lower_limit, upper_limit=upper_limit, continous=continous)
+                    value = adjust(value, lower_limit=lower_limit, upper_limit=upper_limit, continous=continous)
                 # save values
                 genetics[key] = value
             # > mutate the mutational rates
             # > we decide if we mutate these values based on the innate cell, but future
             #   mutational values are determined via the new mutational value as they are future cell
-            if(get_spin_outcome(cell_mutational_rate)):  # see if we need to mutate
+            if(spin(cell_mutational_rate)):  # see if we need to mutate
                 # compute shift - currently using a fraction of the cell's mutational rate
                 shift = np.random.uniform(0, 1) * genetics['cell_mutational_rate']
                 # perform mutation
                 value = mutation_perc + shift
                 # adjust values
-                value = adjust_value(value, lower_limit=0, upper_limit=1, continous=False)
+                value = adjust(value, lower_limit=0, upper_limit=1, continous=False)
                 # save values (1 = index of mutational perc)
                 cell_mutation_information[idx][1] = value
         # TODO: correlate mutational capacity to age, and cell cycle and maybe track movement and eating separately

@@ -9,7 +9,7 @@ from cell import *
 from food import *
 from analyze import *
 # import constants
-from constants import *
+from utils import *
 
 ## SETUP ENVIRONMENT
 # instantiate application window

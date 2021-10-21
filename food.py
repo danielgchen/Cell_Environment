@@ -1,7 +1,7 @@
 # import packages
 import numpy as np
 # import constants
-from constants import *
+from utils import *
 
 class Food:
     def __init__(self, canvas):
@@ -29,21 +29,12 @@ class Food:
 
     def add_food_random(self):
         '''
-        default function to add food to a given mouse click
+        default function to add food to a random location
         '''
         # get random position
         center = get_rand_coords(padding=self.food_radius)
-        # >>> only for testing
-        angle = get_rand_angle()
-        # x,y = np.cos(angle), np.sin(angle)
-        # scale = np.random.uniform(100,125)
-        # x,y = x*scale + window_width / 2, y*scale + window_height / 2
-        x,y = angle/(2*np.pi), np.sin(angle)
-        scale = np.random.uniform(100,125)
-        x,y = x*window_width, y*scale + window_height / 2
-        # <<<
         # call helper function
-        self.add_food_custom((x,y))
+        self.add_food_custom(center)
 
 
     def add_food_custom(self, center):
@@ -84,12 +75,11 @@ class Food:
         eaten = 0  # track if a food was indeed eaten
         # work through all currently existing foods
         valid_foods = self.get_detected(cell.cell_center, cell.cell_radius + self.food_radius)
-        for food,(x,y) in valid_foods:
-            cell_to_food_dist = get_distance(cell.cell_center,[x,y]) - cell.cell_radius
-            if(cell_to_food_dist <= self.food_radius):
+        for food,food_center in valid_foods:
+            if(membrane_to_center_overlap(cell.cell_center, cell.cell_radius, food_center, 1)):
                 eaten += 1  # count how many we're eaten
                 self.canvas.delete(food)  # remove from canvas
-                self.foods.remove((food,(x,y)))
+                self.foods.remove((food, food_center))
         return eaten
 
 
@@ -98,22 +88,33 @@ class Food:
         checks if a cell can see the food if so it reports the food and the distance
         '''
         # set tracking variables
-        seen = []
+        seen = np.empty((0,n_dims))
+        weights = []
         # work through currently existing foods
+        # TODO: make sure to get the max number of detected
         valid_foods = self.get_detected(cell.cell_center, cell.genetics['cell_vision_radius'] * cell.cell_radius + self.food_radius)
-        for food,(x,y) in valid_foods:
-            cell_to_food_dist = get_distance(cell.cell_center,[x,y]) - cell.genetics['cell_vision_radius'] * cell.cell_radius
-            if(cell_to_food_dist <= self.food_radius):
-                # get angle from cell
-                y = y - cell.cell_center[1]
-                x = x - cell.cell_center[0]
-                angle = np.arctan2(y, x)
+        for food,food_center in valid_foods:
+            if(membrane_to_center_overlap(cell.cell_center, cell.genetics['cell_vision_radius'] * cell.cell_radius, food_center, 1)):
+                # get differences in position from the cell
+                diff = np.array(food_center) - np.array(cell.cell_center)
+                seen = np.vstack([seen, diff])
                 # get weight factor
-                vec_dist = [angle, cell_to_food_dist + cell.genetics['cell_vision_radius'] * cell.cell_radius]
-                # take weight as inverse distance such that smaller distances have larger weights
-                assert vec_dist[1] >= 0  # so we can assume that distance is not a negative number
-                vec_dist[1] = 1 / vec_dist[1] if vec_dist[1] != 0 else 1e10  # artifically large to prevent divide by zero errors
-                seen.append(vec_dist)
-        # filter for the top ones (i.e. min distance) that the cell considers
-        seen = sorted(seen, key=lambda vec_dist: vec_dist[1])[:round(cell.genetics['cell_vision_nconsidered'])]
-        return seen
+                # TODO: create a core function to compute np array distance
+                dist = np.linalg.norm(np.array(cell.cell_center) - np.array(food_center))
+                weight = 1 / dist if dist != 0 else 1e10  # artifically large to prevent divide by zero errors
+                weights.append(weight)
+        diffs = []  # instantiate
+        if(weights):  # if there were any seen food
+            # sort the list of seen foods
+            weights = np.array(weights)
+            idx = np.argsort(weights)
+            seen,weights = seen[idx], weights[idx]
+            # filter for the top ones (i.e. min distance) that the cell considers
+            n_seen = round(cell.genetics['cell_vision_nconsidered'])
+            seen,weights = seen[:n_seen], weights[:n_seen]
+            # compute final direction
+            diffs = np.dot(weights, seen)
+            # scale according to the cell step
+            diffs /= np.sqrt(np.power(diffs, 2).sum() / np.power(cell.cell_step, 2))
+        # return the final movement
+        return diffs

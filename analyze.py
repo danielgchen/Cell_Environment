@@ -3,7 +3,7 @@ import pickle
 import pandas as pd
 import matplotlib.pyplot as plt
 # import constants
-from constants import *
+from utils import *
 
 '''
 reads in the tracking file and outputs out a plot of the cells across time
