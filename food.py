@@ -35,9 +35,12 @@ class Food:
         center = get_rand_coords(padding=self.food_radius)
         # >>> only for testing
         angle = get_rand_angle()
-        x,y = np.cos(angle), np.sin(angle)
+        # x,y = np.cos(angle), np.sin(angle)
+        # scale = np.random.uniform(100,125)
+        # x,y = x*scale + window_width / 2, y*scale + window_height / 2
+        x,y = angle/(2*np.pi), np.sin(angle)
         scale = np.random.uniform(100,125)
-        x,y = x*scale + window_width / 2, y*scale + window_height / 2
+        x,y = x*window_width, y*scale + window_height / 2
         # <<<
         # call helper function
         self.add_food_custom((x,y))

@@ -21,6 +21,7 @@ class Cell:
         self.cell_radius = cell_radius  # track how big the cell is
         self.cell_health = cell_health  # food eaten - moves made
         self.cell_metabolic_cost = cell_metabolic_cost  # the rate at which movement costs energy
+        # TODO make changeable cell step
         self.cell_step = cell_step  # the size of the step the cell can take in any direction
         # set baseline attributes
         self.cell_alive = True  # tracks if the cell is dead
@@ -54,6 +55,9 @@ class Cell:
         # TODO: store mutational information in dictionary format?
         current_mutational_keys = [row[0] for row in self.genetics['cell_mutation_information']]  # retrieve information
         mutational_keys = [name for name in mutational_keys if name not in current_mutational_keys]
+        if('cell_mutational_rate' not in current_mutational_keys):
+            mutational_keys.remove('cell_mutational_rate')
+            mutational_keys = ['cell_mutational_rate'] + mutational_keys
         for key in mutational_keys:
             # > retrieve mutational percentage, also based around 25%
             mutation_function,mutation_params = cell_instantiation_information['cell_mutational_rate']
@@ -142,6 +146,9 @@ class Cell:
         '''
         # copy current genetics
         genetics = copy.deepcopy(self.genetics)
+        # change mutational rate based on percent of lifespan
+        age_scaling_factor = ((self.cell_age / cell_age_of_death) ** 3) + 1
+        self.genetics['cell_mutational_rate'] *= age_scaling_factor  # so the current mutational rate is increased with age
         # pull out mutational rate and information
         cell_mutational_rate = self.genetics['cell_mutational_rate']  # we want this to be unchanged during the mutation
         cell_mutation_information = genetics['cell_mutation_information']  # we want this to be changed post-mutation
@@ -150,12 +157,7 @@ class Cell:
         # - mutation_perc = % change to multiply by
         # - mutation_magnitude = magnitude of the change we add or subtract by
         # - limits = (lower_limit, upper_limit, continous) or None to adjust the values by
-        # > rearrange the information list to put mutational rate at the front
-        # TODO arrange this to do cell mutational rate first and then the rest of the attributes
-        cell_mutation_information_front = [row for row in cell_mutation_information if row[0] == 'cell_mutational_rate']
-        cell_mutation_information_rest = [row for row in cell_mutation_information if row[0] != 'cell_mutational_rate']
-        cell_mutation_information = cell_mutation_information_front + cell_mutation_information_rest
-        del cell_mutation_information_front, cell_mutation_information_rest
+        assert cell_mutation_information[0][0] == 'cell_mutational_rate'  # make sure we mutate the mutation first
         # > process the mutations
         for idx, (key, mutation_perc, mutation_magnitude, limits) in enumerate(cell_mutation_information):
             # > mutate the attribute

@@ -10,17 +10,27 @@ reads in the tracking file and outputs out a plot of the cells across time
 '''
 
 # TODO: deal with snapshots of data
+def record_snapshot(cells):
+    '''
+    for a given list of cells records their attributes
+    '''
+    values = []  # set tracking variable
+    # loop through each cell
+    columns = ['cell_color','cell_radius','cell_center','cell_age','cell_health','cell_metabolic_cost']
+    for cell in cells:
+        # initial attributes
+        row = [cell.cell_color, cell.cell_radius, cell.cell_center, cell.cell_age, cell.cell_health, cell.get_cell_metabolic_cost()]
+        row = {columns[idx]:value for idx,value in enumerate(row)}
+        for key,value in cell.genetics.items():
+            row[key] = value
+        values.append(row)
+    pickle.dump(values, open(track_filename + '.pkl','wb'))
+
 def convert_cells():
     # read in data
     data = pickle.load(open(track_filename + '.pkl','rb'))
-    # separate out the genetics from attributes
-    annos = [{'cell_color':val[0],'cell_age':val[1],'cell_metabolic_cost':val[2], 'cell_center':val[3], 'cell_radius':val[4]} for val in data]
-    data = [val[5] for val in data]
     # convert to dataframe
-    df_data = pd.DataFrame(data)
-    df_annos = pd.DataFrame(annos)
-    # combine and write
-    df = pd.concat([df_annos, df_data], axis=1)
+    df = pd.DataFrame(data)
     df.to_csv(track_filename + '.csv')
 
 def analyze_history():

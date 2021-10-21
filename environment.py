@@ -73,7 +73,7 @@ while(len(cells) > 0):
     # prepare for next round
     total_rounds += 1  # track the number of rounds
     # record values
-    pickle.dump([(cell.cell_color, cell.cell_age, cell.get_cell_metabolic_cost(), cell.cell_center, cell.cell_radius, cell.genetics) for cell in cells], open(track_filename + '.pkl','wb'))
+    record_snapshot(cells)  # TODO: make this so it does it per timepoint then concatenates them together
     cell_colors = Counter([cell.cell_color for cell in cells])
     for cell_color,count in cell_colors.items():
         with open(track_filename + '.txt', 'at') as f: f.writelines(f'{total_rounds},{cell_color},{count}\n')
@@ -85,6 +85,5 @@ while(len(cells) > 0):
 print(f'Survived a total of {total_rounds} rounds for cells with lifespan of {cell_age_of_death}')
 # analyze data
 analyze_history()  # using the tracking file
-
 # run simulation
 window.mainloop()
