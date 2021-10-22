@@ -27,6 +27,7 @@ class TestDetectionMethods(unittest.TestCase):
         expected = [(1, [1, 1]), (2, [3, 4])]
         self.assertEqual(predicted, expected)
 
+
 class TestTemplateMethods(unittest.TestCase):
     # test that the template for the raise error bad parameter is correct
     def test_raise_value_error_badparam(self):

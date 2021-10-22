@@ -101,7 +101,7 @@ class Cell:
             else:
                 diffs = self.cell_diffs
             # - get coordinates
-            self.cell_center = np.array(diffs) + np.array(self.cell_center)
+            self.cell_center = adjust_coords(np.array(diffs) + np.array(self.cell_center))
             # - add step to current_location
             new_tl_x,new_tl_y,new_br_x,new_br_y = get_oval_coords(center=self.cell_center, radius=self.cell_radius)
             # assign new coordinates
