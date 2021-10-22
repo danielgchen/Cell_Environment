@@ -74,7 +74,7 @@ class Food:
         # set tracking variables
         eaten = 0  # track if a food was indeed eaten
         # work through all currently existing foods
-        valid_foods = self.get_detected(cell.cell_center, cell.cell_radius + self.food_radius)
+        valid_foods = membrane_to_center_objectlist(cell.cell_center, cell.cell_radius, self.foods, 1)
         for food,food_center in valid_foods:
             if(membrane_to_center_overlap(cell.cell_center, cell.cell_radius, food_center, 1)):
                 eaten += 1  # count how many we're eaten
@@ -92,14 +92,13 @@ class Food:
         weights = []
         # work through currently existing foods
         # TODO: make sure to get the max number of detected
-        valid_foods = self.get_detected(cell.cell_center, cell.genetics['cell_vision_radius'] * cell.cell_radius + self.food_radius)
+        valid_foods = membrane_to_center_objectlist(cell.cell_center, cell.cell_radius, self.foods, 1 + cell.genetics['cell_vision_radius'] / cell.cell_radius)
         for food,food_center in valid_foods:
             if(membrane_to_center_overlap(cell.cell_center, cell.genetics['cell_vision_radius'] * cell.cell_radius, food_center, 1)):
                 # get differences in position from the cell
                 diff = np.array(food_center) - np.array(cell.cell_center)
                 seen = np.vstack([seen, diff])
                 # get weight factor
-                # TODO: create a core function to compute np array distance
                 dist = np.linalg.norm(np.array(cell.cell_center) - np.array(food_center))
                 weight = 1 / dist if dist != 0 else 1e10  # artifically large to prevent divide by zero errors
                 weights.append(weight)
