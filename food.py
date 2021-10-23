@@ -33,6 +33,9 @@ class Food:
         '''
         # get random position
         center = get_rand_coords(padding=self.food_radius)
+        # >>>>>>> purely for testing
+        
+        # <<<<<<< purely for testing
         # call helper function
         self.add_food_custom(center)
 
@@ -88,12 +91,11 @@ class Food:
         checks if a cell can see the food if so it reports the food and the distance
         '''
         # set tracking variables
-        seen = np.empty((0,n_dims))
-        weights = []
+        seen = np.empty((0,n_dims))  # manage an array of one-dimensional movements
+        weights = []  # manage the relative weights of each of these movements
         # work through currently existing foods
-        # TODO: make sure to get the max number of detected
         valid_foods = membrane_to_center_objectlist(cell.cell_center, cell.cell_radius, self.foods, 1 + cell.genetics['cell_vision_radius'] / cell.cell_radius)
-        for food,food_center in valid_foods:
+        for food, food_center in valid_foods:
             if(membrane_to_center_overlap(cell.cell_center, cell.genetics['cell_vision_radius'] * cell.cell_radius, food_center, 1)):
                 # get differences in position from the cell
                 diff = np.array(food_center) - np.array(cell.cell_center)
@@ -114,6 +116,7 @@ class Food:
             # compute final direction
             diffs = np.dot(weights, seen)
             # scale according to the cell step
-            diffs /= np.sqrt(np.power(diffs, 2).sum() / np.power(cell.cell_step, 2))
+            dividing_factor = np.sqrt(np.power(diffs, 2).sum() / np.power(cell.cell_step, 2))
+            diffs /= dividing_factor if dividing_factor != 0 else 1  # no movement
         # return the final movement
         return diffs

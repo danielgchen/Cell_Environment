@@ -42,32 +42,17 @@ def adjust(value, lower_limit, upper_limit, continous):
     but it loops around, if it is not continous then bring it back up to min or max
     '''
     if(continous):
-        if(value < lower_limit):
-            value += upper_limit
-        elif(value > upper_limit):
-            value -= upper_limit
+        while(value > upper_limit or value < lower_limit):
+            if(value < lower_limit):
+                value += upper_limit
+            elif(value > upper_limit):
+                value -= upper_limit
     else:
         if(value < lower_limit):
             value = lower_limit
         elif(value > upper_limit):
             value = upper_limit
     return value
-
-
-# define base method to get x component of an angle and radius
-def get_angle_xcomp(angle, radius):
-    '''
-    returns the x component via the cos function and scales it by the radius
-    '''
-    return np.cos(angle) * radius
-
-
-# define base method to get y component of an angle and radius
-def get_angle_ycomp(angle, radius):
-    '''
-    returns the y component via the sin function and scales it by the radius
-    '''
-    return np.sin(angle) * radius
 
 
 # define base method to produce random coordinates within the canvas
@@ -140,7 +125,7 @@ def shift_coords(center, radius, angle=None):
     # get angle
     angle = get_rand_angle() if angle is None else angle
     # get steps in x and y
-    shift_x,shift_y = get_angle_xcomp(angle, radius), get_angle_ycomp(angle, radius)
+    shift_x,shift_y = np.cos(angle) * radius, np.sin(angle) * radius
     # add step to current location
     new_center = curr_x + shift_x, curr_y + shift_y
     # make sure new_x and new_y are within the bounds of the window if not shift them over
@@ -236,7 +221,7 @@ initial_num_food = 25  # number of starting pieces of food
 # define food per round
 food_per_round = 7  # get new pieces of food per round
 # define initial cells
-initial_num_cells = 100  # how many cells do we start with
+initial_num_cells = 1  # how many cells do we start with
 # define time for a cell to dies
 cell_age_of_death = 50  # number of rounds total
 # compute food radius size
