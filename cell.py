@@ -125,7 +125,7 @@ class Cell:
         # post-eating food needs processing so we return a % of the food
         # TODO: create enzymes to manage this instead of metabolic cost
         benefit = n_eaten * (1 - self.get_cell_metabolic_cost())
-        self.cell_age -= benefit  # manages how long the cell may remain alive
+        # self.cell_age -= benefit  # manages how long the cell may remain alive
         self.cell_health += benefit  # manages the cell's ability to proliferate
         # check if we need to divide
         if(self.cell_health >= cell_threshold_to_divide):
@@ -166,6 +166,7 @@ class Cell:
                 if(limits is not None):  # if it needs adjustment
                     lower_limit,upper_limit,continous = limits  # unpack values
                     value = adjust(value, lower_limit=lower_limit, upper_limit=upper_limit, continous=continous)
+                    print(value)
                 # save values
                 genetics[key] = value
             # > mutate the mutational rates

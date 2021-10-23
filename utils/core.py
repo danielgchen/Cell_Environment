@@ -123,7 +123,8 @@ def shift_coords(center, radius, angle=None):
     # get x and y of center
     curr_x, curr_y = center
     # get angle
-    angle = get_rand_angle() if angle is None else angle
+    # angle = get_rand_angle() if angle is None else angle
+    angle = np.pi if angle is None else angle  # NOTE: WE'RE CURRENTLY HARDCODING THIS
     # get steps in x and y
     shift_x,shift_y = np.cos(angle) * radius, np.sin(angle) * radius
     # add step to current location
@@ -219,11 +220,11 @@ window_width,window_height = 500,500
 # define initial amount of food
 initial_num_food = 25  # number of starting pieces of food
 # define food per round
-food_per_round = 7  # get new pieces of food per round
+food_per_round = 5  # get new pieces of food per round
 # define initial cells
-initial_num_cells = 1  # how many cells do we start with
+initial_num_cells = 25  # how many cells do we start with
 # define time for a cell to dies
-cell_age_of_death = 50  # number of rounds total
+cell_age_of_death = 25  # number of rounds total
 # compute food radius size
 food_radius = min(window_width,window_height) * 0.01 / 2  # take 1% of the smallest dimension
 # compute cell radius size
@@ -235,4 +236,4 @@ cell_health = 0  # basically the handicap for the cell to divide
 # define the food movement balance needed for the cell to divide
 cell_threshold_to_divide = 1  # eaten one more food than movement
 # define the metabolic cost of movements
-cell_metabolic_cost = 0.01  # a movement has X% metabolic cost so moving costs X% of the step size
+cell_metabolic_cost = 0.05  # a movement has X% metabolic cost so moving costs X% of the step size
