@@ -121,7 +121,7 @@ class TestFoodObject(unittest.TestCase):
     def test_get_seen_singlefood(self):
         canvas, test_cell, test_food = generate_environment()  # get pieces
         test_cell.cell_center = (0,0)  # at the origin
-        test_cell.genetics['cell_vision_radius'] = 10  # assume ultra-vision
+        test_cell.genetics['cell_vision_scale'] = 10  # assume ultra-vision
         test_cell.genetics['cell_vision_nconsidered'] = 1  # assume single-food decision
         test_food.add_food_custom((5,5))  # add a food within it's vision
         diffs = test_food.get_seen(test_cell)  # get the considered movement
@@ -134,13 +134,27 @@ class TestFoodObject(unittest.TestCase):
     def test_get_seen_multiplefood(self):
         canvas, test_cell, test_food = generate_environment()  # get pieces
         test_cell.cell_center = (0,0)  # at the origin
-        test_cell.genetics['cell_vision_radius'] = 10  # assume ultra-vision
+        test_cell.genetics['cell_vision_scale'] = 10  # assume ultra-vision
         test_cell.genetics['cell_vision_nconsidered'] = 2  # assume single-food decision
         test_food.add_food_custom((5,5))  # add a food within it's vision
         test_food.add_food_custom((-5,-5))  # add a food within it's vision
         diffs = test_food.get_seen(test_cell)  # get the considered movement
         predicted = np.sqrt(np.power(diffs, 2).sum())
         expected = 0
+        self.assertEqual(predicted, expected)
+
+    # > single food decision making
+    def test_get_seen_withinboundary(self):
+        canvas, test_cell, test_food = generate_environment()  # get pieces
+        test_cell.cell_center = (0,0)  # at the origin
+        test_cell.cell_radius = 2  # to get a designed boundary
+        test_cell.genetics['cell_vision_scale'] = 5  # assume vision total of 1
+        test_cell.genetics['cell_vision_nconsidered'] = 1  # assume single-food decision
+        test_food.add_food_custom((0,10))  # add a food within it's vision
+        diffs = test_food.get_seen(test_cell)  # get the considered movement
+        predicted = np.sqrt(np.power(diffs, 2).sum())
+        expected = test_cell.cell_step
+        del canvas, test_cell, test_food
         self.assertEqual(predicted, expected)
 
 
@@ -150,7 +164,7 @@ class TestCellObject(unittest.TestCase):
     def test_move_singlefood(self):
         canvas, test_cell, test_food = generate_environment()  # get pieces
         test_cell.cell_center = (0,0)  # at the origin
-        test_cell.genetics['cell_vision_radius'] = 10  # assume ultra-vision
+        test_cell.genetics['cell_vision_scale'] = 10  # assume ultra-vision
         test_cell.genetics['cell_vision_nconsidered'] = 1  # assume single-food decision
         test_food.add_food_custom((5,5))  # add a food within it's vision
         diffs = test_food.get_seen(test_cell)  # get the considered movement

@@ -99,16 +99,15 @@ class Food:
         seen = np.empty((0,n_dims))  # manage an array of one-dimensional movements
         weights = []  # manage the relative weights of each of these movements
         # work through currently existing foods
-        valid_foods = membrane_to_center_objectlist(cell.cell_center, cell.cell_radius, self.foods, 1 + cell.genetics['cell_vision_radius'] / cell.cell_radius)
+        valid_foods = membrane_to_center_objectlist(cell.cell_center, cell.cell_radius, self.foods, cell.genetics['cell_vision_scale'])
         for food, food_center in valid_foods:
-            if(membrane_to_center_overlap(cell.cell_center, cell.genetics['cell_vision_radius'] * cell.cell_radius, food_center, 1)):
-                # get differences in position from the cell
-                diff = np.array(food_center) - np.array(cell.cell_center)
-                seen = np.vstack([seen, diff])
-                # get weight factor
-                dist = np.linalg.norm(np.array(cell.cell_center) - np.array(food_center))
-                weight = 1 / dist if dist != 0 else 1e10  # artifically large to prevent divide by zero errors
-                weights.append(weight)
+            # get differences in position from the cell
+            diff = np.array(food_center) - np.array(cell.cell_center)
+            seen = np.vstack([seen, diff])
+            # get weight factor
+            dist = np.linalg.norm(np.array(cell.cell_center) - np.array(food_center))
+            weight = 1 / dist if dist != 0 else 1e10  # artifically large to prevent divide by zero errors
+            weights.append(weight)
         diffs = []  # instantiate
         if(weights):  # if there were any seen food
             # sort the list of seen foods
