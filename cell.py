@@ -143,7 +143,7 @@ class Cell:
         # copy current genetics
         genetics = copy.deepcopy(self.genetics)
         # change mutational rate based on percent of lifespan
-        age_scaling_factor = ((self.cell_age / cell_age_of_death) ** 3) + 1
+        age_scaling_factor = (1 + self.cell_age / cell_age_of_death) ** 2
         self.genetics['cell_mutational_rate'] *= age_scaling_factor  # so the current mutational rate is increased with age
         # pull out mutational rate and information
         cell_mutational_rate = self.genetics['cell_mutational_rate']  # we want this to be unchanged during the mutation
