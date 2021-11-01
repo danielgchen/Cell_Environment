@@ -26,6 +26,10 @@ canvas = Canvas(window, width=window_width, height=window_height, background=bac
 canvas.grid(column=0, row=0, sticky=(N, W, E, S))
 
 ## DEFINE ORGANISMS AND INTERACTIONS
+# create fresh outputs directory
+if(os.path.exists('outputs/')):
+    os.system('rm -rf outputs/')
+os.mkdir('outputs/')
 # define food
 food = Food(canvas)  # allows us to click to add food
 # create initial number of food

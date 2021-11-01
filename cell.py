@@ -180,7 +180,7 @@ class Cell:
                 value = adjust(value, lower_limit=0, upper_limit=1, continous=False)
                 # save values (1 = index of mutational perc)
                 cell_mutation_information[idx][1] = value
-        # TODO: correlate mutational capacity to age, and cell cycle and maybe track movement and eating separately
+        # TODO: correlate mutational capacity to cell cycle and maybe track movement and eating separately
         # TODO: mutate cell color and cell cycle
         return genetics
 

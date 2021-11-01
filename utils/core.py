@@ -216,13 +216,13 @@ round_delay = 0  # in seconds
 # define canvas size
 window_width,window_height = 500,500
 # define initial amount of food
-initial_num_food = 25  # number of starting pieces of food
+initial_num_food = 50  # number of starting pieces of food
 # define food per round
-food_per_round = 5  # get new pieces of food per round
+food_per_round = 10  # get new pieces of food per round
 # define initial cells
-initial_num_cells = 25  # how many cells do we start with
+initial_num_cells = 50  # how many cells do we start with
 # define time for a cell to dies
-cell_age_of_death = 25  # number of rounds total
+cell_age_of_death = 30  # number of rounds total
 # compute food radius size
 food_radius = min(window_width,window_height) * 0.01 / 2  # take 1% of the smallest dimension
 # compute cell radius size
