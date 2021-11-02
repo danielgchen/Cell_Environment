@@ -1,8 +1,10 @@
+import os
+import pickle
 from .core import *
 from collections import Counter
 
 # record a pickled snapshot of the data
-def record_snapshot(cells, total_rounds, track_filename=None):
+def record_snapshot(cells, total_rounds, given_filename=None):
     '''
     for a given list of cells records their attributes
     '''
@@ -19,7 +21,11 @@ def record_snapshot(cells, total_rounds, track_filename=None):
     # write the data
     if(not os.path.exists('outputs')):
         os.mkdir('outputs/')
-    pickle.dump(values, open(f'outputs/{track_filename}.{total_rounds}.pkl','wb'))
+    if(given_filename is None):
+        write_filename = f'outputs/{track_filename}.{total_rounds}.pkl'
+    else:
+        write_filename = f'outputs/{given_filename}.{total_rounds}.pkl'
+    pickle.dump(values, open(write_filename,'wb'))
 
 # record the population heterogeneity at each time point
 def record_population(cells, total_rounds, given_filename=None):
