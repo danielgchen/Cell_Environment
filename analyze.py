@@ -13,27 +13,6 @@ from utils import *
 reads in the tracking file and outputs out a plot of the cells across time
 '''
 
-# TODO: deal with snapshots of data
-def record_snapshot(cells):
-    '''
-    for a given list of cells records their attributes
-    '''
-    values = []  # set tracking variable
-    # loop through each cell
-    columns = ['cell_color','cell_radius','cell_center','cell_age','cell_health','cell_metabolic_cost']
-    for cell in cells:
-        # initial attributes
-        row = [cell.cell_color, cell.cell_radius, cell.cell_center, cell.cell_age, cell.cell_health, cell.get_cell_metabolic_cost()]
-        row = {columns[idx]:value for idx,value in enumerate(row)}
-        for key,value in cell.genetics.items():
-            row[key] = value
-        values.append(row)
-    # write the data
-    if(not os.path.exists('outputs')):
-        os.mkdir('outputs/')
-    pickle.dump(values, open(f'outputs/{track_filename}.{round(time.time())}.pkl','wb'))
-
-
 def convert_cells(fname):
     # read in data
     data = pickle.load(open(fname,'rb'))
@@ -49,7 +28,7 @@ def analyze_history():
         os.system('rm -rf analysis/')
     os.mkdir('analysis/')
     # read in data
-    df = pd.read_csv(track_filename + '.txt')
+    df = pd.read_csv(f'outputs/{track_filename}.txt')
     # define clones present
     clones = df['clone'].unique()
     # plot lines

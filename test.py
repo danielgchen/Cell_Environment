@@ -1,3 +1,5 @@
+import os
+import hashlib
 import unittest
 import numpy as np
 from tkinter import *
@@ -61,6 +63,59 @@ class TestTemplateMethods(unittest.TestCase):
         self.assertEqual(predicted, expected)
 
 
+class TestReportingMethods(unittest.TestCase):
+    # test that we write data correctly to the given tracking name
+    def test_record_population_givenfname(self):
+        # check that it writes the values correctly
+        canvas, test_cell, test_food = generate_environment()  # get pieces
+        # check that the file we will be writing to is okay
+        tmp_track_filename = 'testtrack'
+        if(os.path.exists(f'outputs/{tmp_track_filename}.txt')):
+            os.system(f'rm -rf outputs/{tmp_track_filename}.txt')
+        # TODO: get a random number generator instead of relying on global functions
+        # define parameters and test function
+        total_rounds, cell_color, count = 1, test_cell.cell_color, 5
+        record_population([test_cell] * count, total_rounds, tmp_track_filename)  # call the method
+        # check 1) the content 2) the sha512
+        # > checking content
+        with open(f'outputs/{tmp_track_filename}.txt', 'rt') as f:
+            predicted_msg = f.read()
+        expected_msg = f'{total_rounds},{cell_color},{count}\n'
+        self.assertEqual(predicted_msg, expected_msg)
+        os.system(f'rm -rf outputs/{tmp_track_filename}.txt')
+        # > checking sha512
+        predicted_hex = hashlib.sha512(predicted_msg.encode()).hexdigest()
+        expected_hex = hashlib.sha512(expected_msg.encode()).hexdigest()
+        self.assertEqual(predicted_hex, expected_hex)
+
+
+    # test that we write data correctly to the default tracking name
+    def test_record_population_defaultfname(self):
+        # check that it writes the values correctly
+        canvas, test_cell, test_food = generate_environment()  # get pieces
+        # move the original track filename if it exists
+        tmp_track_filename = 'switchtrack'
+        if(os.path.exists(f'outputs/{track_filename}.txt')):
+            os.system(f'mv outputs/{track_filename}.txt outputs/{tmp_track_filename}.txt')
+        # TODO: get a random number generator instead of relying on global functions
+        # define parameters and test function
+        total_rounds, cell_color, count = 1, test_cell.cell_color, 5
+        record_population([test_cell] * count, total_rounds)  # call the method
+        # check 1) the content 2) the sha512
+        # > checking content
+        with open(f'outputs/{track_filename}.txt', 'rt') as f:
+            predicted_msg = f.read()
+        expected_msg = f'{total_rounds},{cell_color},{count}\n'
+        self.assertEqual(predicted_msg, expected_msg)
+        os.system(f'rm -rf outputs/{track_filename}.txt')
+        if(os.path.exists(f'outputs/{tmp_track_filename}.txt')):
+            os.system(f'mv outputs/{tmp_track_filename}.txt outputs/{track_filename}.txt')
+        # > checking sha512
+        predicted_hex = hashlib.sha512(predicted_msg.encode()).hexdigest()
+        expected_hex = hashlib.sha512(expected_msg.encode()).hexdigest()
+        self.assertEqual(predicted_hex, expected_hex)
+
+
 class TestCoreMethods(unittest.TestCase):
     # test `get_rand_angle`
     def test_get_rand_angle(self):
@@ -97,22 +152,6 @@ class TestCoreMethods(unittest.TestCase):
         predicted = adjust(5.5, 0, 1, True)
         expected = 0.5
         self.assertEqual(predicted, expected)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    #
 
 
 class TestFoodObject(unittest.TestCase):

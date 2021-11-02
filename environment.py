@@ -2,8 +2,6 @@
 from tkinter import *
 from tkinter import ttk
 import time
-import pickle  # TODO write cells
-from collections import Counter
 # import organisms
 from cell import *
 from food import *
@@ -38,7 +36,7 @@ for _ in range(initial_num_food):
 # create initial number of cells
 cells = [Cell(canvas) for _ in range(initial_num_cells)]
 # prepare for cell number tracking
-with open(track_filename + '.txt', 'wt') as f: f.writelines('round,clone,count\n')
+with open(f'outputs/{track_filename}.txt', 'wt') as f: f.writelines('round,clone,count\n')
 # circulate movements
 # TODO add round number
 # TODO clean up this code
@@ -77,10 +75,8 @@ while(len(cells) > 0):
     # prepare for next round
     total_rounds += 1  # track the number of rounds
     # record values
-    record_snapshot(cells)  # TODO: make this so it does it per timepoint then concatenates them together
-    cell_colors = Counter([cell.cell_color for cell in cells])
-    for cell_color,count in cell_colors.items():
-        with open(track_filename + '.txt', 'at') as f: f.writelines(f'{total_rounds},{cell_color},{count}\n')
+    record_snapshot(cells, total_rounds)
+    record_population(cells, total_rounds)
     # rest until next round
     sleep_time = round_delay - (time.time() - start_time)
     if(sleep_time > 0):
