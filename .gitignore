@@ -1,6 +1,2 @@
 # ignore jupyter notebook checkpoints
 .ipynb_checkpoints/
-# ignore the outputs of the tracking
-outputs/
-# ignore the final analysis images
-analysis/
