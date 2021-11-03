@@ -57,7 +57,7 @@ while(len(cells) > 0):  # keep looping through the rounds as long as there are c
         for cell in cells:  # loop through each cell
             if(cell.cell_alive):  # check if marked for death
                 if(cell.get_cell_cycle() >= cell_cycle_round):  # only move if allowed
-                    cell.move(food.get_seen(cell))  # move the cell
+                    cell.move(food.get_seen(cell), cells)  # move the cell
                     n_eaten = food.get_eaten(cell)  # check if cell can eat food and how much
                     if(n_eaten > 0):  # only compute further actions if needed
                         new_cell = cell.eat(n_eaten)  # check if cell can eat food

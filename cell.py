@@ -60,7 +60,7 @@ class Cell:
             mutational_keys.remove('cell_mutational_rate')
             mutational_keys = ['cell_mutational_rate'] + mutational_keys
         for key in mutational_keys:
-            # > retrieve mutational percentage, also based around 25%
+            # > retrieve mutational percentage
             mutation_function,mutation_params = cell_instantiation_information['cell_mutational_rate']
             mutation_perc = mutation_function(**mutation_params)
             # > retrieve mutational magnitude (dealt via special cases)
@@ -76,8 +76,8 @@ class Cell:
             self.genetics['cell_mutation_information'].append(values)
 
 
-    # ROUND FUNCTIONS
-    def move(self, diffs):
+    # ACTION FUNCTIONS
+    def move(self, diffs, cells):
         '''
         move the cell for a certain step
         '''
@@ -86,18 +86,17 @@ class Cell:
             # assuming resting does not affect a cell's health but does age the cell
             pass
         else:
-            # compute new locations
-            if(len(diffs) > 0):
-                record = spin(self.genetics['cell_direction_remember'])
-                if(record):
-                    self.cell_diffs = diffs
-            else:
-                diffs = self.cell_diffs
-            # - get coordinates
-            self.cell_center = adjust_coords(np.array(diffs) + np.array(self.cell_center))
-            # - add step to current_location
+            # TODO: maybe change this mechanisms to pass new centers and save the old center until ready to throw it out
+            # get the new center
+            # TODO: don't do hit boxes anymore, do the double system we talked about, assume no center overlap
+            prev_center = [val for val in self.cell_center]
+            move_cell_center(self, diffs)
+            # adjust the new center for cell bumping
+            max_dist = center_to_center_distance(prev_center, self.cell_center)
+            adjust_for_neighbors(self, cells, max_dist)
+            del prev_center, max_dist
+            # get the oval coordinates
             new_tl_x,new_tl_y,new_br_x,new_br_y = get_oval_coords(center=self.cell_center, radius=self.cell_radius)
-            # assign new coordinates
             self.canvas.coords(self.cell, new_tl_x, new_tl_y, new_br_x, new_br_y)
 
             # update cell attributes

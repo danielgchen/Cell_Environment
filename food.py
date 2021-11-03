@@ -84,9 +84,9 @@ class Food:
         # set tracking variables
         eaten = 0  # track if a food was indeed eaten
         # work through all currently existing foods
-        valid_foods = membrane_to_center_objectlist(cell.cell_center, cell.cell_radius, self.foods, 1)
+        valid_foods = membrane_to_center_objectlist(cell.cell_center, cell.cell_radius, self.foods, 1, False)
         for food,food_center in valid_foods:
-            if(membrane_to_center_overlap(cell.cell_center, cell.cell_radius, food_center, 1)):
+            if(membrane_to_center_overlap(cell.cell_center, cell.cell_radius, food_center, 1, False)):
                 eaten += 1  # count how many we're eaten
                 self.canvas.delete(food)  # remove from canvas
                 self.foods.remove((food, food_center))
@@ -101,7 +101,7 @@ class Food:
         seen = np.empty((0,n_dims))  # manage an array of one-dimensional movements
         weights = []  # manage the relative weights of each of these movements
         # work through currently existing foods
-        valid_foods = membrane_to_center_objectlist(cell.cell_center, cell.cell_radius, self.foods, cell.genetics['cell_vision_scale'])
+        valid_foods = membrane_to_center_objectlist(cell.cell_center, cell.cell_radius, self.foods, cell.genetics['cell_vision_scale'], False)
         for food, food_center in valid_foods:
             # get differences in position from the cell
             diff = np.array(food_center) - np.array(cell.cell_center)

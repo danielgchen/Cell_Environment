@@ -28,28 +28,28 @@ def generate_environment():
 
 # test suites
 class TestDetectionMethods(unittest.TestCase):
-    # test `membrane_to_center_distance`
-    def test_membrane_to_center_distance(self):
+    # test `center_to_center_distance`
+    def test_center_to_center_distance(self):
         # check that it computes the output properly
-        predicted = membrane_to_center_distance([0,0], [3,4])
+        predicted = center_to_center_distance([0,0], [3,4])
         expected = 5
         self.assertEqual(predicted, expected)
 
     # test `membrane_to_center_overlap`
     def test_membrane_to_center_overlap(self):
         # check that it identifies the output properly
-        predicted = membrane_to_center_overlap([0,0], 10, [1,1], 1)
+        predicted = membrane_to_center_overlap([0,0], 10, [1,1], 1, False)
         expected = True
         self.assertEqual(predicted, expected)
         # check that it fails properly
         expected = 'PARAMETER \[perc\] OF VALUE \[-1\] IS NOT VALID'
         with self.assertRaisesRegex(ValueError, expected):
-            membrane_to_center_overlap([0,0], 10, [1,1], -1)
+            membrane_to_center_overlap([0,0], 10, [1,1], -1, False)
 
     # test `membrane_to_center_overlap`
     def test_membrane_to_center_objectlist(self):
         # check that it returns the output properly
-        predicted = membrane_to_center_objectlist([0,0], 10, [[1,[1,1]],[2,[3,4]]], 1)
+        predicted = membrane_to_center_objectlist([0,0], 10, [[1,[1,1]],[2,[3,4]]], 1, False)
         expected = [(1, [1, 1]), (2, [3, 4])]
         self.assertEqual(predicted, expected)
 
@@ -215,8 +215,11 @@ class TestCellObject(unittest.TestCase):
         test_cell.genetics['cell_direction_pause'] = 0  # it will always move
         test_food.add_food_custom((5,5))  # add a food within it's vision
         diffs = test_food.get_seen(test_cell)  # get the considered movement
-        test_cell.move(diffs)
+        test_cell.move(diffs, [])
         predicteds = test_cell.cell_center
         expecteds = diffs
         for idx, predicted in enumerate(predicteds):
             self.assertEqual(predicted, expecteds[idx])
+    # TODO: test cell creation for different number of specified attributes
+    # TODO: create testing for multiple foods
+    # TODO: create testing for single/multiple food with other cells present

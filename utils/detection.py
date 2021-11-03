@@ -6,7 +6,7 @@ from .template import *
 import numpy as np
 
 # calculate membrane to center distance
-def membrane_to_center_distance(
+def center_to_center_distance(
     center1: Sequence,
     center2: Sequence):
     '''
@@ -22,12 +22,14 @@ def membrane_to_center_distance(
     return distance
 
 
+# TODO: add testing mechanisms for exclusive
 # detect via membrane to center overlap
 def membrane_to_center_overlap(
     center1: Sequence,
     radius1: float,
     center2: Sequence,
-    perc: float):
+    perc: float,
+    exclusive: bool):
     '''
     given two centers and two radii we consider a center1 to membrane object
     if center2 is a certain percentage from center1 to membrane return True
@@ -37,19 +39,24 @@ def membrane_to_center_overlap(
     if(perc < 0):
         raise ValueError(raise_value_error_badparam.format('perc', perc))
     # compute distance
-    distance = membrane_to_center_distance(center1, center2)
+    distance = center_to_center_distance(center1, center2)
     # test if center2 within perc * radius1 of center1
-    overlap = (radius1 * perc) >= distance
+    if(exclusive):
+        overlap = distance < (radius1 * perc)
+    else:  # inclusive
+        overlap = distance <= (radius1 * perc)
     # return value
     return overlap
 
 
+# TODO: add testing mechanisms for exclusive
 # get the detected centers from a list of centers
 def membrane_to_center_objectlist(
     center1: Sequence,
     radius1: float,
     object2s: Sequence,
-    perc: float):
+    perc: float,
+    exclusive: bool):
     '''
     given list of objects formatted as a tuple of object, center return the objects
     and centers that overlap under a given percentage with the center1
@@ -58,7 +65,7 @@ def membrane_to_center_objectlist(
     valid_objects = []
     # loop through all of the objects
     for object2, center2 in object2s:
-        if(membrane_to_center_overlap(center1, radius1, center2, perc)):
+        if(membrane_to_center_overlap(center1, radius1, center2, perc, exclusive)):
             valid_objects.append((object2, center2))
     # return the passing objects
     return valid_objects
