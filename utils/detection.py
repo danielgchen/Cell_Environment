@@ -7,8 +7,8 @@ import numpy as np
 
 # calculate membrane to center distance
 def membrane_to_center_distance(
-    center1: Sequence,  # TODO: change to sequence of floats
-    center2: Sequence):  # TODO: change to sequence of floats
+    center1: Sequence,
+    center2: Sequence):
     '''
     given two centers we return the distance
     '''
@@ -24,9 +24,9 @@ def membrane_to_center_distance(
 
 # detect via membrane to center overlap
 def membrane_to_center_overlap(
-    center1: Sequence,  # TODO: change to sequence of floats
+    center1: Sequence,
     radius1: float,
-    center2: Sequence,  # TODO: change to sequence of floats
+    center2: Sequence,
     perc: float):
     '''
     given two centers and two radii we consider a center1 to membrane object
@@ -46,9 +46,9 @@ def membrane_to_center_overlap(
 
 # get the detected centers from a list of centers
 def membrane_to_center_objectlist(
-    center1: Sequence,  # TODO: change to sequence of floats
+    center1: Sequence,
     radius1: float,
-    object2s: Sequence,  # TODO: change to sequence of tuple(object, tuple(float, float))
+    object2s: Sequence,
     perc: float):
     '''
     given list of objects formatted as a tuple of object, center return the objects

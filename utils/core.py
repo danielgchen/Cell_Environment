@@ -136,8 +136,7 @@ def shift_coords(center, radius, angle=None):
     # get x and y of center
     curr_x, curr_y = center
     # get angle
-    # angle = get_rand_angle() if angle is None else angle
-    angle = np.pi if angle is None else angle  # NOTE: WE'RE CURRENTLY HARDCODING THIS
+    angle = get_rand_angle() if angle is None else angle
     # get steps in x and y
     shift_x,shift_y = np.cos(angle) * radius, np.sin(angle) * radius
     # add step to current location
@@ -228,6 +227,8 @@ n_dims = 2
 round_delay = 0  # in seconds
 # define canvas size
 window_width,window_height = 500,500
+# define canvas background color
+background_color = '#ffffff'
 # define initial amount of food
 initial_num_food = 50  # number of starting pieces of food
 # define food per round

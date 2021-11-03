@@ -7,12 +7,13 @@ from utils import *
 
 class Cell:
     # TODO: link cell cycle to metabolic rate
-    # TODO: track metabolic rate as an attribute
+    # TODO: create a basal metabolic rate and an actual metabolic rate that compounds on health and age
     def __init__(self, canvas, genetics=None, cell_color=None, init_center=None):
         '''
         create a cell object that can be presented on a given center
         genetics consists of a dictionary specifying cell attributes
         '''
+        # TODO: change everything to numpy arrays
         # set given attributes
         self.canvas = canvas  # where we are drawing the cell
         self.cell_color = get_rand_color() if cell_color is None else cell_color
@@ -31,7 +32,7 @@ class Cell:
         self.instantiate(init_center)
 
 
-    # define key cellular functions
+    # INSTANTION FUNCTION
     def instantiate(self, init_center=None):
         '''
         create the cell for the first time
@@ -52,7 +53,6 @@ class Cell:
         # - we identify the keys we want to mutate
         mutational_keys = [key for key in self.genetics.keys() if key != 'cell_mutation_information']
         # - we subset for keys that are not in the current cell_mutation_information attribute
-        # TODO: manage metabolic cost as a function of certain values, potentially age, mutational rate
         # TODO: store mutational information in dictionary format?
         current_mutational_keys = [row[0] for row in self.genetics['cell_mutation_information']]  # retrieve information
         mutational_keys = [name for name in mutational_keys if name not in current_mutational_keys]
@@ -76,14 +76,7 @@ class Cell:
             self.genetics['cell_mutation_information'].append(values)
 
 
-    def get_cell_metabolic_cost(self):
-        '''
-        calculates the weighted average between factors of stress and scales it by the metabolic cost
-        '''
-        metabolic_cost = get_metabolic_cost(self.cell_metabolic_cost, self.cell_age, self.genetics['cell_mutational_rate'], self.cell_health)
-        return metabolic_cost
-
-
+    # ROUND FUNCTIONS
     def move(self, diffs):
         '''
         move the cell for a certain step
@@ -183,7 +176,6 @@ class Cell:
                 # save values (1 = index of mutational perc)
                 cell_mutation_information[idx][1] = value
         # TODO: correlate mutational capacity to cell cycle and maybe track movement and eating separately
-        # TODO: mutate cell color and cell cycle
         return genetics
 
 
@@ -210,3 +202,20 @@ class Cell:
         '''
         # remove the cell
         self.canvas.delete(self.cell)
+
+
+    # GET-VALUE FUNCTIONS
+    def get_cell_metabolic_cost(self):
+        '''
+        calculates the weighted average between factors of stress and scales it by the metabolic cost
+        '''
+        metabolic_cost = get_metabolic_cost(self.cell_metabolic_cost, self.cell_age, self.genetics['cell_mutational_rate'], self.cell_health)
+        return metabolic_cost
+
+
+    def get_cell_cycle(self):
+        '''
+        provides the rounded cell cycle
+        '''
+        cell_cycle = round(self.genetics['cell_cycle'])
+        return cell_cycle

@@ -72,7 +72,6 @@ class TestReportingMethods(unittest.TestCase):
         tmp_track_filename = 'testtrack'
         if(os.path.exists(f'outputs/{tmp_track_filename}.txt')):
             os.system(f'rm -rf outputs/{tmp_track_filename}.txt')
-        # TODO: get a random number generator instead of relying on global functions
         # define parameters and test function
         total_rounds, cell_color, count = 1, test_cell.cell_color, 5
         record_population([test_cell] * count, total_rounds, tmp_track_filename)  # call the method
@@ -96,7 +95,6 @@ class TestReportingMethods(unittest.TestCase):
         tmp_track_filename = 'switchtrack'
         if(os.path.exists(f'outputs/{track_filename}.txt')):
             os.system(f'mv outputs/{track_filename}.txt outputs/{tmp_track_filename}.txt')
-        # TODO: get a random number generator instead of relying on global functions
         # define parameters and test function
         total_rounds, cell_color, count = 1, test_cell.cell_color, 5
         record_population([test_cell] * count, total_rounds)  # call the method

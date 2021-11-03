@@ -3,8 +3,19 @@ import pickle
 from .core import *
 from collections import Counter
 
+# changes given filename to default track filename if needed
+def get_fname(given_filename=None):
+    '''
+    returns the default track filename if we don't specify a given filename
+    '''
+    if(given_filename is None):
+        write_filename = track_filename
+    else:
+        write_filename = given_filename
+    return write_filename
+
+
 # record a pickled snapshot of the data
-# TODO: create a method to get manage given filename in this file
 def record_snapshot(cells, total_rounds, given_filename=None):
     '''
     for a given list of cells records their attributes
@@ -22,11 +33,7 @@ def record_snapshot(cells, total_rounds, given_filename=None):
     # write the data
     if(not os.path.exists('outputs')):
         os.mkdir('outputs/')
-    if(given_filename is None):
-        write_filename = f'outputs/{track_filename}.{total_rounds}.pkl'
-    else:
-        write_filename = f'outputs/{given_filename}.{total_rounds}.pkl'
-    pickle.dump(values, open(write_filename,'wb'))
+    pickle.dump(values, open(f'outputs/{get_fname(given_filename)}.{total_rounds}.pkl', 'wb'))
 
 
 # record the population heterogeneity at each time point
@@ -37,10 +44,6 @@ def record_population(cells, total_rounds, given_filename=None):
     # count the cell colors
     cell_colors = Counter([cell.cell_color for cell in cells])
     # report it in a tracking file
-    if(given_filename is None):
-        write_filename = f'outputs/{track_filename}.txt'
-    else:
-        write_filename = f'outputs/{given_filename}.txt'
-    with open(write_filename, 'at') as f:
+    with open(f'outputs/{get_fname(given_filename)}.txt', 'at') as f:
         for cell_color,count in cell_colors.items():
             f.writelines(f'{total_rounds},{cell_color},{count}\n')
