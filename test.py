@@ -4,6 +4,7 @@ import unittest
 import numpy as np
 from tkinter import *
 from tkinter import ttk
+from tqdm import tqdm
 from utils import *
 from cell import *
 from food import *
@@ -17,7 +18,6 @@ def generate_environment():
     '''
     # create the environment
     canvas = Canvas(Tk())
-    np.random.seed(0)  # ensure consistency
     # create the cell
     test_cell = Cell(canvas)
     # create the food
@@ -88,7 +88,6 @@ class TestReportingMethods(unittest.TestCase):
         expected_hex = hashlib.sha512(expected_msg.encode()).hexdigest()
         self.assertEqual(predicted_hex, expected_hex)
 
-
     # test that we write data correctly to the default tracking name
     def test_record_population_defaultfname(self):
         # check that it writes the values correctly
@@ -120,27 +119,34 @@ class TestCoreMethods(unittest.TestCase):
     # test `get_rand_angle`
     def test_get_rand_angle(self):
         # check that it calculates the value correctly
-        np.random.seed(0)
-        predicted = get_rand_angle()
-        np.random.seed(0)
-        expected = np.random.uniform(0, 2*np.pi)
-        self.assertEqual(predicted, expected)
+        rng = np.random.default_rng(0)
+        test_rng = np.random.default_rng(0)
+        for _ in tqdm(range(int(1e5))):  # accuracte with five zeroes
+            predicted = get_rand_angle(rng=rng)
+            expected = test_rng.uniform(0, 2*np.pi)
+            self.assertEqual(predicted, expected)
 
     # test `get_rand_color`
     def test_get_rand_color(self):
         # check that it calculates the value correctly
-        np.random.seed(0)
-        predicted = get_rand_color()
-        expected = '#AC2F75'
-        self.assertEqual(predicted, expected)
+        rng = np.random.default_rng(0)
+        test_rng = np.random.default_rng(0)
+        for _ in tqdm(range(int(1e5))):  # accuracte with five zeroes
+            predicted = get_rand_color(rng=rng)
+            expected = '#%02X%02X%02X' % tuple([test_rng.integers(0, 256) for _ in range(3)])
+            self.assertEqual(predicted, expected)
 
     # test `spin`
     def test_spin(self):
         # check that it calculates the value correctly
-        np.random.seed(0)
-        predicted = spin(0.548813503928)  # confirm 10^-12 accuracy
-        expected = True
-        self.assertEqual(predicted, expected)
+        rng = np.random.default_rng(0)
+        test_rng = np.random.default_rng(0)
+        for _ in tqdm(range(int(1e5))):  # accuracte with five zeroes
+            chance = rng.uniform(0, 1)  # grab a number
+            predicted = spin(chance, rng=rng)  # confirm 10^-12 accuracy
+            _ = test_rng.uniform(0, 1)  # replicate the grab action
+            expected = test_rng.uniform(0, 1) < chance
+            self.assertEqual(predicted, expected)
 
     # test `adjust`
     def test_adjust(self):
@@ -162,6 +168,7 @@ class TestFoodObject(unittest.TestCase):
         test_cell.cell_center = (0,0)  # at the origin
         test_cell.genetics['cell_vision_scale'] = 10  # assume ultra-vision
         test_cell.genetics['cell_vision_nconsidered'] = 1  # assume single-food decision
+        test_cell.genetics['cell_direction_pause'] = 0  # it will always move
         test_food.add_food_custom((5,5))  # add a food within it's vision
         diffs = test_food.get_seen(test_cell)  # get the considered movement
         predicted = np.sqrt(np.power(diffs, 2).sum())
@@ -175,6 +182,7 @@ class TestFoodObject(unittest.TestCase):
         test_cell.cell_center = (0,0)  # at the origin
         test_cell.genetics['cell_vision_scale'] = 10  # assume ultra-vision
         test_cell.genetics['cell_vision_nconsidered'] = 2  # assume single-food decision
+        test_cell.genetics['cell_direction_pause'] = 0  # it will always move
         test_food.add_food_custom((5,5))  # add a food within it's vision
         test_food.add_food_custom((-5,-5))  # add a food within it's vision
         diffs = test_food.get_seen(test_cell)  # get the considered movement
@@ -189,6 +197,7 @@ class TestFoodObject(unittest.TestCase):
         test_cell.cell_radius = 2  # to get a designed boundary
         test_cell.genetics['cell_vision_scale'] = 5  # assume vision total of 1
         test_cell.genetics['cell_vision_nconsidered'] = 1  # assume single-food decision
+        test_cell.genetics['cell_direction_pause'] = 0  # it will always move
         test_food.add_food_custom((0,10))  # add a food within it's vision
         diffs = test_food.get_seen(test_cell)  # get the considered movement
         predicted = np.sqrt(np.power(diffs, 2).sum())
@@ -205,6 +214,7 @@ class TestCellObject(unittest.TestCase):
         test_cell.cell_center = (0,0)  # at the origin
         test_cell.genetics['cell_vision_scale'] = 10  # assume ultra-vision
         test_cell.genetics['cell_vision_nconsidered'] = 1  # assume single-food decision
+        test_cell.genetics['cell_direction_pause'] = 0  # it will always move
         test_food.add_food_custom((5,5))  # add a food within it's vision
         diffs = test_food.get_seen(test_cell)  # get the considered movement
         test_cell.move(diffs)

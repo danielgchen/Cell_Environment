@@ -23,7 +23,7 @@ class Cell:
         self.cell_metabolic_cost = cell_metabolic_cost  # the rate at which movement costs energy
         # TODO make changeable cell step
         self.cell_step = cell_step  # the size of the step the cell can take in any direction
-        self.cell_diffs = [get_rand_angle(), get_rand_angle()]  # TODO: change this to be some random thing
+        self.cell_diffs = [get_rand_angle() for _ in range(n_dims)]
         # set baseline attributes
         self.cell_alive = True  # tracks if the cell is dead
         self.cell_age = 0  # related to cell alive, after a certain age (i.e. number of rounds) the cell dies
@@ -135,11 +135,13 @@ class Cell:
             return None  # no cell to provide
 
 
-    def mutate(self):
+    def mutate(self, rng=None):
         '''
         perform mutations for the cell, for most mutations it is formatted via
         [key, mutation_perc, mutation_magnitude, (lower_limit, upper_limit)] we also deal with special cases
         '''
+        # set random generator defaults to core
+        if(rng is None): rng = core_rng
         # copy current genetics
         genetics = copy.deepcopy(self.genetics)
         # change mutational rate based on percent of lifespan
@@ -159,7 +161,7 @@ class Cell:
             # > mutate the attribute
             if(spin(cell_mutational_rate)):  # see if we need to mutate
                 # compute shift
-                shift = np.random.uniform(-mutation_perc, mutation_perc) * mutation_magnitude
+                shift = rng.uniform(-mutation_perc, mutation_perc) * mutation_magnitude
                 # perform mutation
                 value = genetics[key] + shift
                 # adjust values
@@ -173,7 +175,7 @@ class Cell:
             #   mutational values are determined via the new mutational value as they are future cell
             if(spin(cell_mutational_rate)):  # see if we need to mutate
                 # compute shift - currently using a fraction of the cell's mutational rate
-                shift = np.random.uniform(0, 1) * genetics['cell_mutational_rate']
+                shift = rng.uniform(0, 1) * genetics['cell_mutational_rate']
                 # perform mutation
                 value = mutation_perc + shift
                 # adjust values

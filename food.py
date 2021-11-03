@@ -27,17 +27,19 @@ class Food:
         self.add_food_custom(center)
 
 
-    def add_food_random(self):
+    def add_food_random(self, rng=None):
         '''
         default function to add food to a random location
         '''
+        # set random generator defaults to core
+        if(rng is None): rng = core_rng
         # get random position
         center = get_rand_coords(padding=self.food_radius)
         # >>>>>>> purely for testing
         angle = get_rand_angle()
         x,y = np.cos(angle), np.sin(angle)
         x,y = np.cos(angle), np.sin(angle)
-        scale = np.random.uniform(100,125)
+        scale = rng.uniform(100,125)
         x,y = x*scale + window_width / 2, y*scale + window_height / 2
         center = x,y
         # <<<<<<< purely for testing

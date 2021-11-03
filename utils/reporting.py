@@ -4,6 +4,7 @@ from .core import *
 from collections import Counter
 
 # record a pickled snapshot of the data
+# TODO: create a method to get manage given filename in this file
 def record_snapshot(cells, total_rounds, given_filename=None):
     '''
     for a given list of cells records their attributes
@@ -26,6 +27,7 @@ def record_snapshot(cells, total_rounds, given_filename=None):
     else:
         write_filename = f'outputs/{given_filename}.{total_rounds}.pkl'
     pickle.dump(values, open(write_filename,'wb'))
+
 
 # record the population heterogeneity at each time point
 def record_population(cells, total_rounds, given_filename=None):

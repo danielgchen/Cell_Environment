@@ -4,33 +4,43 @@ import numpy as np
 define all of the constants needed for the simulatons
 '''
 
+# create pseudo random number bit generator that will used for this entire process
+core_rng = np.random.default_rng(0)  # set the seed as 0
+
 # define base method to get a random angle
-def get_rand_angle():
+def get_rand_angle(rng=None):
     '''
     returns a random angle from [0, 2pi)
     '''
-    return np.random.uniform(0, 2*np.pi)
+    # set random generator defaults to core
+    if(rng is None): rng = core_rng
+    return rng.uniform(0, 2*np.pi)
 
 
 # define base method to create random colors
-def get_rand_color():
+def get_rand_color(rng=None):
     '''
     creates a random color via the rgb value type switched into hex formation
     '''
-    rand_rgb = lambda: np.random.randint(0, 255)  # define method to generate random rgb value
+    # set random generator defaults to core
+    if(rng is None): rng = core_rng
+    # define method to generate random rgb value
+    rand_rgb = lambda: rng.integers(0, 256)
     # create hex color %02X means convert to hexadecimal format
     hex_color = '#%02X%02X%02X' % (rand_rgb(),rand_rgb(),rand_rgb())
     return hex_color
 
 
 # define base method to spin and see if it passes chance
-def spin(chance):
+def spin(chance, rng=None):
     '''
     using a given chance of something happening returns if it happens or not
     it's like spinning a spinner so we call it spin
     '''
+    # set random generator defaults to core
+    if(rng is None): rng = core_rng
     # calculate the random probability
-    value = np.random.uniform(0, 1)
+    value = rng.uniform(0, 1)
     # return whether they passed
     return value < chance
 
@@ -56,15 +66,18 @@ def adjust(value, lower_limit, upper_limit, continous):
 
 
 # define base method to produce random coordinates within the canvas
-def get_rand_coords(padding=None):
+def get_rand_coords(padding=None, rng=None):
     '''
     create random coordinates within the canvas using the window constraints
     should there be padding given then assume it is radius-like and pad accordingly
     '''
+    # set random generator defaults to core
+    if(rng is None): rng = core_rng
+    # perform padding
     if(padding is None):
         padding = 0
-    x = np.random.uniform(0 + padding, window_width - padding)
-    y = np.random.uniform(0 + padding, window_height - padding)
+    x = rng.uniform(0 + padding, window_width - padding)
+    y = rng.uniform(0 + padding, window_height - padding)
     return x, y
 
 
@@ -199,13 +212,13 @@ cell_direction_pause_llimit = 0
 cell_direction_pause_ulimit = 1
 # define the cell's initial attributes and limitations
 cell_instantiation_information = {
-    'cell_direction_pause': [instantiate_from_distribution, {'distribution':np.random.normal, 'distribution_params':{'loc':cell_direction_pause_mean, 'scale':cell_direction_pause_std}, 'llimit':cell_direction_pause_llimit, 'ulimit':cell_direction_pause_ulimit, 'continous':False}],
+    'cell_direction_pause': [instantiate_from_distribution, {'distribution':core_rng.normal, 'distribution_params':{'loc':cell_direction_pause_mean, 'scale':cell_direction_pause_std}, 'llimit':cell_direction_pause_llimit, 'ulimit':cell_direction_pause_ulimit, 'continous':False}],
     'cell_direction_angle': [get_rand_angle, {}],
-    'cell_cycle': [instantiate_from_distribution, {'distribution':np.random.normal, 'distribution_params':{'loc':cell_cycle_mean, 'scale':cell_cycle_std}, 'llimit':cell_cycle_llimit, 'ulimit':cell_cycle_ulimit, 'continous':False}],
-    'cell_direction_remember': [instantiate_from_distribution, {'distribution':np.random.normal, 'distribution_params':{'loc':cell_direction_remember_mean, 'scale':cell_direction_remember_std}, 'llimit':cell_direction_remember_llimit, 'ulimit':cell_direction_remember_ulimit, 'continous':False}],
-    'cell_vision_scale': [instantiate_from_distribution, {'distribution':np.random.normal, 'distribution_params':{'loc':cell_vision_scale_mean, 'scale':cell_vision_scale_std}, 'llimit':cell_vision_scale_llimit, 'ulimit':cell_vision_scale_ulimit, 'continous':False}],
-    'cell_vision_nconsidered': [instantiate_from_distribution, {'distribution':np.random.normal, 'distribution_params':{'loc':cell_vision_nconsidered_mean, 'scale':cell_vision_nconsidered_std}, 'llimit':cell_vision_nconsidered_llimit, 'ulimit':cell_vision_nconsidered_ulimit, 'continous':False}],
-    'cell_mutational_rate': [instantiate_from_distribution, {'distribution':np.random.normal, 'distribution_params':{'loc':cell_mutational_rate_mean, 'scale':cell_mutational_rate_std}, 'llimit':cell_mutational_rate_llimit, 'ulimit':cell_mutational_rate_ulimit, 'continous':False}],
+    'cell_cycle': [instantiate_from_distribution, {'distribution':core_rng.normal, 'distribution_params':{'loc':cell_cycle_mean, 'scale':cell_cycle_std}, 'llimit':cell_cycle_llimit, 'ulimit':cell_cycle_ulimit, 'continous':False}],
+    'cell_direction_remember': [instantiate_from_distribution, {'distribution':core_rng.normal, 'distribution_params':{'loc':cell_direction_remember_mean, 'scale':cell_direction_remember_std}, 'llimit':cell_direction_remember_llimit, 'ulimit':cell_direction_remember_ulimit, 'continous':False}],
+    'cell_vision_scale': [instantiate_from_distribution, {'distribution':core_rng.normal, 'distribution_params':{'loc':cell_vision_scale_mean, 'scale':cell_vision_scale_std}, 'llimit':cell_vision_scale_llimit, 'ulimit':cell_vision_scale_ulimit, 'continous':False}],
+    'cell_vision_nconsidered': [instantiate_from_distribution, {'distribution':core_rng.normal, 'distribution_params':{'loc':cell_vision_nconsidered_mean, 'scale':cell_vision_nconsidered_std}, 'llimit':cell_vision_nconsidered_llimit, 'ulimit':cell_vision_nconsidered_ulimit, 'continous':False}],
+    'cell_mutational_rate': [instantiate_from_distribution, {'distribution':core_rng.normal, 'distribution_params':{'loc':cell_mutational_rate_mean, 'scale':cell_mutational_rate_std}, 'llimit':cell_mutational_rate_llimit, 'ulimit':cell_mutational_rate_ulimit, 'continous':False}],
 }
 # define the filename to track data in
 track_filename = 'track'
