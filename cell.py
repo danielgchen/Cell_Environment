@@ -77,7 +77,7 @@ class Cell:
 
 
     # ACTION FUNCTIONS
-    def move(self, diffs, cells):
+    def move(self, food, cells, rng=None):
         '''
         move the cell for a certain step
         '''
@@ -86,15 +86,21 @@ class Cell:
             # assuming resting does not affect a cell's health but does age the cell
             pass
         else:
-            # TODO: maybe change this mechanisms to pass new centers and save the old center until ready to throw it out
-            # get the new center
-            # TODO: don't do hit boxes anymore, do the double system we talked about, assume no center overlap
-            prev_center = [val for val in self.cell_center]
-            move_cell_center(self, diffs)
-            # adjust the new center for cell bumping
-            max_dist = center_to_center_distance(prev_center, self.cell_center)
-            adjust_for_neighbors(self, cells, max_dist)
-            del prev_center, max_dist
+            # TODO: incorporate multi-threading/multi-core usage
+            # get the new movement vector
+            diffs, detected = get_direction(self, food, cells)
+            if(detected):  # if they don't sense anything
+                if(rng is None): rng = core_rng
+                # TODO: adapt this to a markov like system?
+                diffs = np.array([rng.integers(-4, 4) for _ in range(n_dims)])  # random walk
+                # adjust for cell step
+                dividing_factor = np.sqrt(np.power(diffs, 2).sum() / np.power(self.cell_step, 2))
+                dividing_factor = dividing_factor if dividing_factor != 0 else 1  # no movement
+                diffs = np.divide(diffs, dividing_factor)
+            # calculate the new center based on movement
+            new_center = np.array(self.cell_center) + diffs
+            # adjust and set the new center
+            self.cell_center = adjust_coords(new_center)
             # get the oval coordinates
             new_tl_x,new_tl_y,new_br_x,new_br_y = get_oval_coords(center=self.cell_center, radius=self.cell_radius)
             self.canvas.coords(self.cell, new_tl_x, new_tl_y, new_br_x, new_br_y)
@@ -186,6 +192,7 @@ class Cell:
         self.cell_health -= cell_threshold_to_divide  # cost of proliferation
         # compute new locations
         # - get coordinates
+        # TODO: revise shift_coords to be multi-dimensional
         new_center= shift_coords(self.cell_center, radius=self.cell_radius)
         # create the new cell
         # - mutate the cell so the new cell can be different

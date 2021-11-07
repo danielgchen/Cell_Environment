@@ -91,38 +91,3 @@ class Food:
                 self.canvas.delete(food)  # remove from canvas
                 self.foods.remove((food, food_center))
         return eaten
-
-
-    def get_seen(self, cell):
-        '''
-        checks if a cell can see the food if so it reports the food and the distance
-        '''
-        # set tracking variables
-        seen = np.empty((0,n_dims))  # manage an array of one-dimensional movements
-        weights = []  # manage the relative weights of each of these movements
-        # work through currently existing foods
-        valid_foods = membrane_to_center_objectlist(cell.cell_center, cell.cell_radius, self.foods, cell.genetics['cell_vision_scale'], False)
-        for food, food_center in valid_foods:
-            # get differences in position from the cell
-            diff = np.array(food_center) - np.array(cell.cell_center)
-            seen = np.vstack([seen, diff])
-            # get weight factor
-            dist = np.linalg.norm(np.array(cell.cell_center) - np.array(food_center))
-            weight = 1 / dist if dist != 0 else 1e10  # artifically large to prevent divide by zero errors
-            weights.append(weight)
-        diffs = []  # instantiate
-        if(weights):  # if there were any seen food
-            # sort the list of seen foods
-            weights = np.array(weights)
-            idx = np.argsort(weights)
-            seen,weights = seen[idx], weights[idx]
-            # filter for the top ones (i.e. min distance) that the cell considers
-            n_seen = round(cell.genetics['cell_vision_nconsidered'])
-            seen,weights = seen[:n_seen], weights[:n_seen]
-            # compute final direction
-            diffs = np.dot(weights, seen)
-            # scale according to the cell step
-            dividing_factor = np.sqrt(np.power(diffs, 2).sum() / np.power(cell.cell_step, 2))
-            diffs /= dividing_factor if dividing_factor != 0 else 1  # no movement
-        # return the final movement
-        return diffs
