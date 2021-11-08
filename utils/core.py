@@ -106,7 +106,7 @@ def get_rand_coords(padding=None, rng=None):
         padding = 0
     x = rng.uniform(0 + padding, window_width - padding)
     y = rng.uniform(0 + padding, window_height - padding)
-    return x, y
+    return np.array([x, y])
 
 
 # define generlizable method for deriving oval coordinates from center coordinates and a cell_radius
@@ -270,7 +270,7 @@ initial_num_food = 50  # number of starting pieces of food
 # define food per round
 food_per_round = 10  # get new pieces of food per round
 # define initial cells
-initial_num_cells = 10  # how many cells do we start with
+initial_num_cells = 20  # how many cells do we start with
 # define time for a cell to dies
 cell_age_of_death = 25  # number of rounds total
 # compute food radius size

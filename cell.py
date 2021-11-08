@@ -211,6 +211,7 @@ class Cell:
 
 
     # GET-VALUE FUNCTIONS
+    # TODO: create a trait attribute to hold immutable attributes
     def get_cell_metabolic_cost(self):
         '''
         calculates the weighted average between factors of stress and scales it by the metabolic cost

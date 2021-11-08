@@ -69,3 +69,24 @@ def membrane_to_center_objectlist(
             valid_objects.append((object2, center2))
     # return the passing objects
     return valid_objects
+
+# TODO: add testing mechanisms for exclusive
+# get the detected centers from a list of centers
+def membrane_to_center_objectlist_cell(
+    center1: Sequence,
+    radius1: float,
+    object2s: Sequence,
+    perc: float,
+    exclusive: bool):
+    '''
+    given list of objects formatted as a tuple of object, center return the objects
+    and centers that overlap under a given percentage with the center1
+    '''
+    # define the objects to return that pass the filter
+    valid_objects = []
+    # loop through all of the objects
+    for row in object2s:
+        if(membrane_to_center_overlap(center1, radius1, row[1:], perc, exclusive)):
+            valid_objects.append((row[0], row[1:]))
+    # return the passing objects
+    return valid_objects

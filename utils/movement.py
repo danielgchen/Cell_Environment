@@ -13,16 +13,22 @@ def get_repulsion(cell, cells):
     weights = []  # manage the relative weights of each of these movements
     # TODO: make the radius of cell cell detection variable like in attraction
     # TODO: make a negative movement counter if a cell get's too close so it has to figure out itself how to weight this properly
-    valid_cells = membrane_to_center_objectlist(cell['cell_center'], cell['cell_radius'], cells, 1, False)
+    # TODO: do a complete overhaul of the membrane to center system so it inputs centers
+    valid_cells = membrane_to_center_objectlist_cell(cell['cell_center'], cell['cell_radius'], cells, 1, False)
+    removed_origin_cell = False
     for cell_radius, cell_center in valid_cells:
-        # get differences in position from the cell
-        diff = np.array(cell['cell_center']) - np.array(cell_center)
-        # add to the already seen stack
-        seen = np.vstack([seen, diff])
-        # get weight factor
-        dist = np.linalg.norm(np.array(cell['cell_center']) - np.array(cell_center))
-        weight = 1 / dist if dist != 0 else 1e10  # artifically large to prevent divide by zero errors
-        weights.append(weight)
+        if(not removed_origin_cell):
+            # get differences in position from the cell
+            diff = np.array(cell['cell_center']) - np.array(cell_center)
+            if(diff.sum() == 0):  # detect whether or not the original cell is in our state
+                removed_origin_cell = True
+                continue
+            # add to the already seen stack
+            seen = np.vstack([seen, diff])
+            # get weight factor
+            dist = np.linalg.norm(np.array(cell['cell_center']) - np.array(cell_center))
+            weight = 1 / dist if dist != 0 else 1e10  # artifically large to prevent divide by zero errors
+            weights.append(weight)
     diffs = []  # instantiate
     if(weights):  # if there were any seen food
         # compute final direction
@@ -70,22 +76,6 @@ def get_attraction(cell, foods):
     # return the final movement
     return diffs, len(diffs) == 0
 
-# process the cell and cells to extract out the necessary information without having to use tkinter objects
-def get_direction_mp_pool(cell, food, cells):
-    '''
-    processes cell food and cells into objects that can be pickled
-    '''
-    # TODO: create a get function that compiles it into a dict format
-    # > process cell
-    in_cell = {'cell_center':cell.cell_center, 'cell_radius':cell.cell_radius, 'cell_step':cell.cell_step, 'cell_vision_scale':cell.genetics['cell_vision_scale'], 'cell_vision_nconsidered':cell.genetics['cell_vision_nconsidered']}
-    # > process foods
-    in_foods = [[0, food_obj[1]] for food_obj in food.foods]
-    # > process cells
-    in_cells = [[cell_obj.cell_radius, cell_obj.cell_center] for cell_obj in cells]
-    # > call multiprocessing module
-    params = [[get_repulsion, {'cell':in_cell, 'cells':in_cells}],[get_attraction, {'cell':in_cell, 'foods':in_foods}]]
-    diffs = mp_pool(params)
-    return diffs
 
 # TODO: what if we have global parameters tracking important cell attributes like radius, center and cells have pointers to these attributes that way we can avoid having to move cells around
 # TODO: get testing functions for this
@@ -97,8 +87,11 @@ def get_direction(cell, food, cells):
     # define the parameter to tell if anything has been detected
     detected = False
     # get the directional vectors
-    diffs = get_direction_mp_pool(cell, food, cells)
-    (diffs_r, detected_r), (diffs_a, detected_a) = diffs
+    in_cell = {'cell_center':cell.cell_center, 'cell_radius':cell.cell_radius, 'cell_step':cell.cell_step, 'cell_vision_scale':cell.genetics['cell_vision_scale'], 'cell_vision_nconsidered':cell.genetics['cell_vision_nconsidered']}
+    # > process foods
+    in_foods = [[0, food_obj[1]] for food_obj in food.foods]
+    diffs_r, detected_r = get_repulsion(in_cell, cells)
+    diffs_a, detected_a = get_attraction(in_cell, in_foods)
     # deal with possible zeros
     if(len(diffs_r) == 0):
         diffs_r = np.zeros(n_dims)
