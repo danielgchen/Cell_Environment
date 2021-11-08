@@ -34,7 +34,7 @@ for _ in range(initial_num_food):
     food.add_food_random()
 # create initial number of cells
 cells = [Cell(canvas) for _ in range(initial_num_cells)]
-cells_attrs = np.array([[cell.cell_radius] + list(cell.cell_center) for cell in cells])  # TODO: do the conversion here where just get all the attributes
+cells_attrs = np.array([np.append(cell.cell_radius, cell.cell_center) for cell in cells])  # TODO: do the conversion here where just get all the attributes
 # prepare for cell number tracking
 with open(f'outputs/{track_filename}.txt', 'wt') as f:
     f.writelines('round,clone,count\n')
@@ -42,7 +42,7 @@ with open(f'outputs/{track_filename}.txt', 'wt') as f:
 round_num = 0  # track the number of rounds we can have the cells survive in
 round_label = Label(window, text=f'Round {round_num}')  # add label
 round_label.grid(row=0, column=0, sticky=NW)  # configure it to top left
-measure_first = time.time()
+measure_first = time.time()  # DEBUGGING
 while(cells_attrs.shape[0] > 0 and round_num < 20):  # keep looping through the rounds as long as there are cells
     # > instantiate round
     start_time = time.time()  # track start time
@@ -65,7 +65,7 @@ while(cells_attrs.shape[0] > 0 and round_num < 20):  # keep looping through the 
                         new_cell = cell.eat(n_eaten)  # check if cell can eat food
                         if(new_cell is not None):  # if the cell divided
                             cells.append(new_cell)
-                            cells_attrs = np.append(cells_attrs, [[new_cell.cell_radius] + list(new_cell.cell_center)], 0)
+                            cells_attrs = np.append(cells_attrs, [np.append(new_cell.cell_radius, new_cell.cell_center)], 0)
                     window.update()  # update the window with move + divide
                     cells_acted = True  # at least one cell could act
             else:  # kill the cell
@@ -80,8 +80,8 @@ while(cells_attrs.shape[0] > 0 and round_num < 20):  # keep looping through the 
     sleep_time = round_delay - (time.time() - start_time)
     if(sleep_time > 0):
         time.sleep(sleep_time)
-measure_last = time.time() - measure_first
-print(measure_last)
+measure_last = time.time() - measure_first  # DEBUGGING
+print(measure_last)  # DEBUGGING
 # report survival
 print(f'Survived a total of {round_num} rounds for cells with lifespan of {cell_age_of_death}')
 # analyze data
