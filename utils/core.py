@@ -146,29 +146,39 @@ def adjust_coords(center):
     '''
     adjusts the given x and y with the constants window_width and window_height
     '''
-    # get x and y of center
-    curr_x, curr_y = center
     # adjust x
-    new_x = adjust(curr_x, 0, window_width, continous=True)
+    new_x = adjust(center[0], 0, window_width, continous=True)
     # adjust y
-    new_y = adjust(curr_y, 0, window_height, continous=True)
-    return new_x, new_y
+    new_y = adjust(center[1], 0, window_height, continous=True)
+    return np.array([new_x, new_y])
+
+
+# define method to constrain dimensions to a certain magnitude
+def scale_vector(vector, magnitude):
+    '''
+    uses the distance formula to backcalculate the value to scale the magnitude
+    '''
+    # calculate the dividing vector to scale the magnitude
+    dividing_factor = np.sqrt(np.power(vector, 2).sum() / np.power(magnitude, 2))
+    # compute the final division
+    vector /= dividing_factor if dividing_factor != 0 else 1  # no movement
+    # return the new vector
+    return vector
 
 
 # define method to produce coordinates next to a given center using a randomized angle
-def shift_coords(center, radius, angle=None):
+def shift_coords(center, radius, shifts=None, rng=None):
     '''
     produces random coordinates next to a given x and y and radius
     can use a given angle if provided in radians
     '''
-    # get x and y of center
-    curr_x, curr_y = center
-    # get angle
-    angle = get_rand_angle() if angle is None else angle
-    # get steps in x and y
-    shift_x,shift_y = np.cos(angle) * radius, np.sin(angle) * radius
+    # set random generator defaults to core
+    if(rng is None): rng = core_rng
+    # get the shift_vector
+    shifts = [rng.uniform(-1,1) for _ in range(n_dims)] if shifts is None else shifts
+    shifts = scale_vector(shifts, radius)
     # add step to current location
-    new_center = curr_x + shift_x, curr_y + shift_y
+    new_center = center + shifts
     # make sure new_x and new_y are within the bounds of the window if not shift them over
     new_center = adjust_coords(new_center)
     return new_center
@@ -185,6 +195,7 @@ def instantiate_from_distribution(**kwargs):
 
 
 # define method to derive metabolic cost
+# TODO: change this so it is based on the cell and we pull factors here
 def get_metabolic_cost(base_cost, cell_age, cell_mutational_rate, cell_health):
     '''
     consider a negative feedback cycle where worse health increases metabolic cost

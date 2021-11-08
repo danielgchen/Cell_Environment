@@ -24,7 +24,6 @@ class Cell:
         self.cell_metabolic_cost = cell_metabolic_cost  # the rate at which movement costs energy
         # TODO make changeable cell step
         self.cell_step = cell_step  # the size of the step the cell can take in any direction
-        self.cell_diffs = [get_rand_angle() for _ in range(n_dims)]
         # set baseline attributes
         self.cell_alive = True  # tracks if the cell is dead
         self.cell_age = 0  # related to cell alive, after a certain age (i.e. number of rounds) the cell dies
@@ -192,7 +191,6 @@ class Cell:
         self.cell_health -= cell_threshold_to_divide  # cost of proliferation
         # compute new locations
         # - get coordinates
-        # TODO: revise shift_coords to be multi-dimensional
         new_center= shift_coords(self.cell_center, radius=self.cell_radius)
         # create the new cell
         # - mutate the cell so the new cell can be different
