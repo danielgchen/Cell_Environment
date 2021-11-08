@@ -47,6 +47,14 @@ class Food:
         self.add_food_custom(center)
 
 
+    def add_food_random_ntimes(self, n, rng=None):
+        '''
+        wrapper for a for loop to call the random placement n times
+        '''
+        for _ in range(n):
+            self.add_food_random(rng=rng)
+
+
     def add_food_custom(self, center):
         '''
         given an x and y coordinate add a piece of food given a constant food_radius
