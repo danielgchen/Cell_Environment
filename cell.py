@@ -89,7 +89,7 @@ class Cell:
             # TODO: incorporate multi-threading/multi-core usage
             # get the new movement vector
             diffs, detected = get_direction(self, food, cells)
-            if(detected):  # if they don't sense anything
+            if(not detected):  # if they don't sense anything
                 if(rng is None): rng = core_rng
                 # TODO: adapt this to a markov like system?
                 diffs = np.array([rng.integers(-4, 4) for _ in range(n_dims)])  # random walk

@@ -41,7 +41,8 @@ with open(f'outputs/{track_filename}.txt', 'wt') as f:
 round_num = 0  # track the number of rounds we can have the cells survive in
 round_label = Label(window, text=f'Round {round_num}')  # add label
 round_label.grid(row=0, column=0, sticky=NW)  # configure it to top left
-while(len(cells) > 0):  # keep looping through the rounds as long as there are cells
+measure_first = time.time()
+while(len(cells) > 0 and round_num < 20):  # keep looping through the rounds as long as there are cells
     # > instantiate round
     start_time = time.time()  # track start time
     round_num += 1  # add to round number
@@ -76,6 +77,8 @@ while(len(cells) > 0):  # keep looping through the rounds as long as there are c
     sleep_time = round_delay - (time.time() - start_time)
     if(sleep_time > 0):
         time.sleep(sleep_time)
+measure_last = time.time() - measure_first
+print(measure_last)
 # report survival
 print(f'Survived a total of {round_num} rounds for cells with lifespan of {cell_age_of_death}')
 # analyze data

@@ -1,11 +1,39 @@
 import numpy as np
+from multiprocessing import Pool, cpu_count
 
 '''
 define all of the constants needed for the simulatons
 '''
 
 # create pseudo random number bit generator that will used for this entire process
-core_rng = np.random.default_rng()  # set the seed as 0
+core_rng = np.random.default_rng(0)  # set the seed as 0
+
+# define base method for calling any function
+# TODO: creating testing function for this
+def call_func(func, kwargs):
+    return func(**kwargs)
+
+
+# define a multiprocessing pooling method to use inputted functions and parameters
+# TODO: creating testing function for this
+def mp_pool(params, unordered=None):
+    '''
+    given a list of functions with parameters as in list of lists and outputs results
+    '''
+    # assign no async unless specified
+    if(unordered is None):
+        unordered = False
+    # set up pool of cpus
+    pool = Pool(cpu_count())
+    # get results
+    if(unordered):
+        mapper = pool.starmap_async(call_func, params)
+        results = mapper.get()
+    else:
+        results = pool.starmap(call_func, params)
+    pool.close()
+    return results
+
 
 # define base method to get a random angle
 def get_rand_angle(rng=None):
@@ -242,7 +270,7 @@ initial_num_food = 50  # number of starting pieces of food
 # define food per round
 food_per_round = 10  # get new pieces of food per round
 # define initial cells
-initial_num_cells = 25  # how many cells do we start with
+initial_num_cells = 10  # how many cells do we start with
 # define time for a cell to dies
 cell_age_of_death = 25  # number of rounds total
 # compute food radius size
