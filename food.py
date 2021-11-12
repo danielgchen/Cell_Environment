@@ -11,7 +11,7 @@ class Food:
         # define attributes
         self.canvas = canvas
         self.food_radius = food_radius
-        self.foods = []  # track the food present in our system
+        self.foods = np.array()  # track the food present in our system
 
         # define key bindings
         self.canvas.bind('<Button-1>', self.add_food_click)
