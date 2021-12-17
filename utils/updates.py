@@ -9,7 +9,7 @@ def add_to_env(object, objects, objects_attrs):
     # add to the list of tkinter objects
     objects.append(object)
     # add to the list of attributes
-    objects_attrs = np.append(objects_attrs, [np.append(object.radius, object.center)], 0)
+    objects_attrs = np.append(objects_attrs, [np.append(object.radius, object.center)], axis=0)
     return objects, objects_attrs
 
 

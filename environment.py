@@ -5,6 +5,7 @@ import time
 # import organisms
 from cell import *
 from food import *
+from vent import *
 from analyze import *
 # import constants
 from utils import *
@@ -27,13 +28,11 @@ canvas.grid(column=0, row=0, sticky=NW)  # start from middle centered to the upp
 if(os.path.exists('outputs/')):
     os.system('rm -rf outputs/')
 os.mkdir('outputs/')
-# define food
-food = Food(canvas)  # allows us to click to add food
-# create initial number of food
-food.add_food_random_ntimes(initial_num_food)
 # create initial number of cells
 cells = [Cell(canvas) for _ in range(initial_num_cells)]
 cells_attrs = np.array([np.append(cell.radius, cell.center) for cell in cells])  # TODO: do the conversion here where just get all the attributes
+vents = [Vent(canvas) for _ in range(initial_num_vents)]
+vents_attrs = np.array([np.append(vent.radius, vent.center) for vent in vents])  # TODO: do the conversion here where just get all the attributes
 # prepare for cell number tracking
 with open(f'outputs/{track_filename}.txt', 'wt') as f:
     f.writelines('round,clone,count\n')
@@ -49,7 +48,7 @@ while(len(cells) > 0 and round_num < 20):  # keep looping through the rounds as 
     start_time = time.time()  # track start time
     round_num += 1  # add to round number
     round_label['text'] = f'Round {round_num}'
-    # > complete food actions for this round
+    # > complete vent actions for this round
     food.add_food_random_ntimes(food_per_round)
     # > complete cellular actions for this round
     cells_acted = True  # track if the cell has acted

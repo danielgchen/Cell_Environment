@@ -275,6 +275,7 @@ n_dims = 2
 round_delay = 0  # in seconds
 # define canvas size
 window_width,window_height = 500,500
+window_diagonal = np.linalg.norm([window_width, window_height])
 # define colors
 background_color = '#ffffff'
 vent_fillcolor = vent_edgecolor = 'forestgreen'
@@ -285,7 +286,7 @@ initial_num_cells = 20  # how many cells do we start with
 # define object radius
 food_radius = min(window_width,window_height) * 0.01 / 2  # diameter is 1% of the smallest dimension
 cell_radius = min(window_width,window_height) * 0.025 / 2  # diameter is 2.5% of the smallest dimension
-food_radius = min(window_width,window_height) * 0.075 / 2  # diameter is 7.5% of the smallest dimension
+vent_radius = min(window_width,window_height) * 0.075 / 2  # diameter is 7.5% of the smallest dimension
 # define cell characteristics
 cell_age_of_death = 25  # number of rounds total
 cell_step = min(window_width,window_height) * 0.01 / 2  # take 1% of the smallest dimension
@@ -294,3 +295,6 @@ cell_threshold_to_divide = 1  # eaten one more food than movement
 cell_metabolic_cost = 0.05  # a movement has X% metabolic cost so moving costs X% of the step size
 # define vent characteristics
 vent_random_overlap = False  # whether or not it is okay to have overlap
+# define food characteristics
+max_food_step = min(window_width,window_height) * 0.025 / 2  # take 2.5% of the smallest dimension
+min_food_step = 0

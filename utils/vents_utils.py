@@ -13,7 +13,7 @@ def add_vent_custom(canvas, center, _vent_radius=None):
     # get the coordinates for the oval
     tl_x,tl_y,br_x,br_y = get_oval_coords(center=center, radius=_vent_radius)
     # plot the piece of food at the mouse position
-    vent = self.canvas.create_oval(tl_x, tl_y, br_x, br_y, fill=vent_fillcolor, outline=vent_edgecolor)
+    vent = canvas.create_oval(tl_x, tl_y, br_x, br_y, fill=vent_fillcolor, outline=vent_edgecolor)
     return vent
 
 
