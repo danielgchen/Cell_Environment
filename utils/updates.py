@@ -1,24 +1,25 @@
 from .core import *
 
 # TODO: add a testing function
-# defines a method to add a new cell
-def add_to_env(new_cell, cells, cells_attrs):
+# defines a method to add a new object
+def add_to_env(object, objects, objects_attrs):
     '''
-    given a new cell it adds it to the cellular environment
+    given a new object it adds it to the environment
     '''
-    # add to the list of tkinter cells
-    cells.append(new_cell)
+    # add to the list of tkinter objects
+    objects.append(object)
     # add to the list of attributes
-    cells_attrs = np.append(cells_attrs, [np.append(new_cell.cell_radius, new_cell.cell_center)], 0)
+    objects_attrs = np.append(objects_attrs, [np.append(object.radius, object.center)], 0)
+    return objects, objects_attrs
 
 
 # TODO: add a testing function
-# defines a method to remove an old cell
-def remove_from_env(cell, idx, cells, cells_attrs):
+# defines a method to remove an old object
+def remove_from_env(object, idx, objects, objects_attrs):
     '''
-    given an old cell it removes it from the cellular enviroment
+    given an old object it removes it from the enviroment
     '''
-    # remove it from the list of tkinter cells
-    cells = cells.remove(cell)
+    # remove it from the list of tkinter objects
+    objects = objects.remove(object)
     # remove it from the list of attributes
-    cells_attrs = np.delete(cells_attrs, idx)
+    objects_attrs = np.delete(objects_attrs, idx)

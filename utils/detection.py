@@ -72,7 +72,7 @@ def membrane_to_center_objectlist(
 
 # TODO: add testing mechanisms for exclusive
 # get the detected centers from a list of centers
-def membrane_to_center_objectlist_cell(
+def membrane_to_center_objectlist_nparray(
     center1: Sequence,
     radius1: float,
     object2s: Sequence,

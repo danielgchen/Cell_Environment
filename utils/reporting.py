@@ -25,7 +25,7 @@ def record_snapshot(cells, total_rounds, given_filename=None):
     columns = ['cell_color','cell_radius','cell_center','cell_age','cell_health','cell_metabolic_cost']
     for cell in cells:
         # initial attributes
-        row = [cell.cell_color, cell.cell_radius, cell.cell_center, cell.cell_age, cell.cell_health, cell.get_cell_metabolic_cost()]
+        row = [cell.cell_color, cell.radius, cell.center, cell.cell_age, cell.cell_health, cell.get_cell_metabolic_cost()]
         row = {columns[idx]:value for idx,value in enumerate(row)}
         for key,value in cell.genetics.items():
             row[key] = value

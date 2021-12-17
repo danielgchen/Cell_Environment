@@ -10,8 +10,8 @@ class Food:
         '''
         # define attributes
         self.canvas = canvas
-        self.food_radius = food_radius
-        self.foods = np.array()  # track the food present in our system
+        self.foods = []  # track the food present in our system
+        self.foods_attrs = np.array()
 
         # define key bindings
         self.canvas.bind('<Button-1>', self.add_food_click)
@@ -27,6 +27,19 @@ class Food:
         self.add_food_custom(center)
 
 
+    def add_food_custom(self, center):
+        '''
+        given an x and y coordinate add a piece of food given a constant food_radius
+        '''
+        # get the coordinates for the oval
+        tl_x,tl_y,br_x,br_y = get_oval_coords(center=center, radius=food_radius)
+        # plot the piece of food at the mouse position
+        food = self.canvas.create_oval(tl_x, tl_y, br_x, br_y, fill='green', outline='forestgreen')
+        # track the instantiated piece of food
+        self.foods.append((food,center)) # add the object to track
+        self.foods_attrs = np.append(self.foods_attrs, center, 0)
+
+
     def add_food_random(self, rng=None):
         '''
         default function to add food to a random location
@@ -34,7 +47,7 @@ class Food:
         # set random generator defaults to core
         if(rng is None): rng = core_rng
         # get random position
-        center = get_rand_coords(padding=self.food_radius)
+        center = get_rand_coords(padding=food_radius)
         # >>>>>>> purely for testing
         angle = get_rand_angle()
         x,y = np.cos(angle), np.sin(angle)
@@ -53,18 +66,6 @@ class Food:
         '''
         for _ in range(n):
             self.add_food_random(rng=rng)
-
-
-    def add_food_custom(self, center):
-        '''
-        given an x and y coordinate add a piece of food given a constant food_radius
-        '''
-        # get the coordinates for the oval
-        tl_x,tl_y,br_x,br_y = get_oval_coords(center=center, radius=self.food_radius)
-        # plot the piece of food at the mouse position
-        food = self.canvas.create_oval(tl_x, tl_y, br_x, br_y, fill='green', outline='forestgreen')
-        # track the instantiated piece of food
-        self.foods.append((food,center)) # add the object to track
 
 
     def get_detected(self, center, radius):

@@ -208,6 +208,7 @@ def get_metabolic_cost(base_cost, cell_age, cell_mutational_rate, cell_health):
     metabolic_cost = get_weighted_mean(weights) * base_cost
     return metabolic_cost
 
+
 # define base mutational rate mean
 # > this represents the chance of mutation and the std represents the
 #   max change of all mutational rates as if we hit the max twice we should
@@ -274,25 +275,22 @@ n_dims = 2
 round_delay = 0  # in seconds
 # define canvas size
 window_width,window_height = 500,500
-# define canvas background color
+# define colors
 background_color = '#ffffff'
-# define initial amount of food
+vent_fillcolor = vent_edgecolor = 'forestgreen'
+# define initial populations
 initial_num_food = 50  # number of starting pieces of food
-# define food per round
 food_per_round = 10  # get new pieces of food per round
-# define initial cells
 initial_num_cells = 20  # how many cells do we start with
-# define time for a cell to dies
+# define object radius
+food_radius = min(window_width,window_height) * 0.01 / 2  # diameter is 1% of the smallest dimension
+cell_radius = min(window_width,window_height) * 0.025 / 2  # diameter is 2.5% of the smallest dimension
+food_radius = min(window_width,window_height) * 0.075 / 2  # diameter is 7.5% of the smallest dimension
+# define cell characteristics
 cell_age_of_death = 25  # number of rounds total
-# compute food radius size
-food_radius = min(window_width,window_height) * 0.01 / 2  # take 1% of the smallest dimension
-# compute cell radius size
-cell_radius = min(window_width,window_height) * 0.025 / 2  # take 2.5% of the smallest dimension
-# compute the length of a step for the cell to be able to take
 cell_step = min(window_width,window_height) * 0.01 / 2  # take 1% of the smallest dimension
-# define the initial cell health
 cell_health = 0  # basically the handicap for the cell to divide
-# define the food movement balance needed for the cell to divide
 cell_threshold_to_divide = 1  # eaten one more food than movement
-# define the metabolic cost of movements
 cell_metabolic_cost = 0.05  # a movement has X% metabolic cost so moving costs X% of the step size
+# define vent characteristics
+vent_random_overlap = False  # whether or not it is okay to have overlap

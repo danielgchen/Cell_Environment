@@ -33,11 +33,13 @@ food = Food(canvas)  # allows us to click to add food
 food.add_food_random_ntimes(initial_num_food)
 # create initial number of cells
 cells = [Cell(canvas) for _ in range(initial_num_cells)]
-cells_attrs = np.array([np.append(cell.cell_radius, cell.cell_center) for cell in cells])  # TODO: do the conversion here where just get all the attributes
+cells_attrs = np.array([np.append(cell.radius, cell.center) for cell in cells])  # TODO: do the conversion here where just get all the attributes
 # prepare for cell number tracking
 with open(f'outputs/{track_filename}.txt', 'wt') as f:
     f.writelines('round,clone,count\n')
 # circulate movements
+# TODO: abstract more of this
+# TODO: create a tracker for the vents and vents attributes
 round_num = 0  # track the number of rounds we can have the cells survive in
 round_label = Label(window, text=f'Round {round_num}')  # add label
 round_label.grid(row=0, column=0, sticky=NW)  # configure it to top left

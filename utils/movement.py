@@ -87,7 +87,7 @@ def get_direction(cell, food, cells):
     # define the parameter to tell if anything has been detected
     detected = False
     # get the directional vectors
-    in_cell = {'cell_center':cell.cell_center, 'cell_radius':cell.cell_radius, 'cell_step':cell.cell_step, 'cell_vision_scale':cell.genetics['cell_vision_scale'], 'cell_vision_nconsidered':cell.genetics['cell_vision_nconsidered']}
+    in_cell = {'cell_center':cell.center, 'cell_radius':cell.radius, 'cell_step':cell.cell_step, 'cell_vision_scale':cell.genetics['cell_vision_scale'], 'cell_vision_nconsidered':cell.genetics['cell_vision_nconsidered']}
     # > process foods
     in_foods = [[0, food_obj[1]] for food_obj in food.foods]
     diffs_r, detected_r = get_repulsion(in_cell, cells)

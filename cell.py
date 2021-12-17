@@ -19,7 +19,7 @@ class Cell:
         self.cell_color = get_rand_color() if cell_color is None else cell_color
         self.genetics = {} if genetics is None else genetics  # contains all attributes
         # set constant attributes
-        self.cell_radius = cell_radius  # track how big the cell is
+        self.radius = cell_radius  # track how big the cell is
         self.cell_health = cell_health  # food eaten - moves made
         self.cell_metabolic_cost = cell_metabolic_cost  # the rate at which movement costs energy
         # TODO make changeable cell step
@@ -37,11 +37,11 @@ class Cell:
         create the cell for the first time
         '''
         # create cell's position (random if not given)
-        center = get_rand_coords(padding=self.cell_radius) if init_center is None else init_center
+        center = get_rand_coords(padding=self.radius) if init_center is None else init_center
         # - specifies topleft(x,y) then bottomright(x,y)
-        tl_x,tl_y,br_x,br_y = get_oval_coords(center, self.cell_radius)
+        tl_x,tl_y,br_x,br_y = get_oval_coords(center, self.radius)
         self.cell = self.canvas.create_oval(tl_x, tl_y, br_x, br_y, fill=self.cell_color, outline='maroon')
-        self.cell_center = center  # track the cell center to compute movements
+        self.center = center  # track the cell center to compute movements
         # create cell attributes
         for key, (function, function_params) in cell_instantiation_information.items():
             if(key not in self.genetics):  # create attribute if it does not already exist
@@ -97,11 +97,11 @@ class Cell:
                 dividing_factor = dividing_factor if dividing_factor != 0 else 1  # no movement
                 diffs = np.divide(diffs, dividing_factor)
             # calculate the new center based on movement
-            new_center = np.array(self.cell_center) + diffs
+            new_center = np.array(self.center) + diffs
             # adjust and set the new center
-            self.cell_center = adjust_coords(new_center)
+            self.center = adjust_coords(new_center)
             # get the oval coordinates
-            new_tl_x,new_tl_y,new_br_x,new_br_y = get_oval_coords(center=self.cell_center, radius=self.cell_radius)
+            new_tl_x,new_tl_y,new_br_x,new_br_y = get_oval_coords(center=self.center, radius=self.radius)
             self.canvas.coords(self.cell, new_tl_x, new_tl_y, new_br_x, new_br_y)
 
             # update cell attributes
@@ -191,7 +191,7 @@ class Cell:
         self.cell_health -= cell_threshold_to_divide  # cost of proliferation
         # compute new locations
         # - get coordinates
-        new_center= shift_coords(self.cell_center, radius=self.cell_radius)
+        new_center= shift_coords(self.center, radius=self.radius)
         # create the new cell
         # - mutate the cell so the new cell can be different
         genetics = self.mutate()
