@@ -77,16 +77,25 @@ def membrane_to_center_objectlist_nparray(
     radius1: float,
     object2s: Sequence,
     perc: float,
-    exclusive: bool):
+    exclusive: bool,
+    get_idxs = None):  # TODO: figure out typing with default values
     '''
     given list of objects formatted as a tuple of object, center return the objects
     and centers that overlap under a given percentage with the center1
     '''
+    # baseline all values
+    get_idxs = False if get_idxs is None else get_idxs
     # define the objects to return that pass the filter
     valid_objects = []
     # loop through all of the objects
-    for row in object2s:
+    idxs = []
+    for idx,row in enumerate(object2s):
         if(membrane_to_center_overlap(center1, radius1, row[1:], perc, exclusive)):
             valid_objects.append((row[0], row[1:]))
+            if(get_idxs):
+                idxs.append(idx)
     # return the passing objects
-    return valid_objects
+    if(get_idxs):
+        return idxs,valid_objects
+    else:
+        return valid_objects

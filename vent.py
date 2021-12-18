@@ -59,3 +59,12 @@ class Vent:
                 # physically update the object
                 tl_x,tl_y,br_x,br_y = get_oval_coords(center=food.center, radius=food.radius)
                 food.canvas.coords(food.blob, tl_x, tl_y, br_x, br_y)
+
+
+    # removes an old piece of food
+    def remove_food(self, food):  # TODO: make it handle either food or index autodetection based on type
+        '''
+        deletes a piece of food using either the index or the actual food object
+        '''
+        idx = self.foods.index(food)
+        self.foods,self.foods_attrs = remove_from_env(food, idx, self.foods, self.foods_attrs)

@@ -109,7 +109,7 @@ def get_rand_coords(padding=None, rng=None):
     return np.array([x, y])
 
 
-# define generlizable method for deriving oval coordinates from center coordinates and a cell_radius
+# define generlizable method for deriving oval coordinates from center coordinates and a radius
 def get_oval_coords(center=None, radius=None):
     '''
     given a center x and y and a radius provide the corner oval coordinates
@@ -196,15 +196,15 @@ def instantiate_from_distribution(**kwargs):
 
 # define method to derive metabolic cost
 # TODO: change this so it is based on the cell and we pull factors here
-def get_metabolic_cost(base_cost, cell_age, cell_mutational_rate, cell_health):
+def get_metabolic_cost(base_cost, age, mutational_rate, health):
     '''
     consider a negative feedback cycle where worse health increases metabolic cost
     which makes it more difficult to derive food, age and mutational rate both increase strain
     we take the average health / time unit to derive whether the cell leans towards starvation
     '''
-    weights = [((1 + cell_age / cell_age_of_death) ** 2 - 1, 1)]  # add in the percent of lifespan (squared for increased punishment with as we proceed towards death)
-    weights += [(cell_mutational_rate, 1)]  # add in mutational stress
-    weights += [(-1 if cell_health > 0 else 1, 1)]  # binary health metric
+    weights = [((1 + age / age_of_death) ** 2 - 1, 1)]  # add in the percent of lifespan (squared for increased punishment with as we proceed towards death)
+    weights += [(mutational_rate, 1)]  # add in mutational stress
+    weights += [(-1 if health > 0 else 1, 1)]  # binary health metric
     metabolic_cost = get_weighted_mean(weights) * base_cost
     return metabolic_cost
 
@@ -213,59 +213,59 @@ def get_metabolic_cost(base_cost, cell_age, cell_mutational_rate, cell_health):
 # > this represents the chance of mutation and the std represents the
 #   max change of all mutational rates as if we hit the max twice we should
 #   be able to exit the 95% confidence interval of normal mutations
-cell_mutational_rate_mean = 0.25
-cell_mutational_rate_std = 0.05
+mutational_rate_mean = 0.25
+mutational_rate_std = 0.05
 # define cell mutational rate limits
-cell_mutational_rate_llimit = 1e-10
-cell_mutational_rate_ulimit = 1
+mutational_rate_llimit = 1e-10
+mutational_rate_ulimit = 1
 # define base cell cycle mean
-cell_cycle_mean = 1
-cell_cycle_std = 0.1
+cycle_mean = 1
+cycle_std = 0.1
 # define cell cycle limits
-cell_cycle_llimit = 0.5 + 1e-10  # below one in case it wants to encode for a suppressive function
-cell_cycle_ulimit = 5
+cycle_llimit = 0.5 + 1e-10  # below one in case it wants to encode for a suppressive function
+cycle_ulimit = 5
 # define base repulsion weight mean
-# TODO: deprecate all cell_ prefixs
-cell_repulsion_weight_mean = 0.5
-cell_repulsion_weight_std = 0.25
+# TODO: deprecate all  prefixs
+repulsion_weight_mean = 0.5
+repulsion_weight_std = 0.25
 # define cell repulsion weight limits
-cell_repulsion_weight_ulimit = 1
-cell_repulsion_weight_llimit = -1
+repulsion_weight_ulimit = 1
+repulsion_weight_llimit = -1
 # define base attraction weight mean
-cell_attraction_weight_mean = 0.5
-cell_attraction_weight_std = 0.25
+attraction_weight_mean = 0.5
+attraction_weight_std = 0.25
 # define cell attraction weight limits
-cell_attraction_weight_ulimit = 1
-cell_attraction_weight_llimit = -1
+attraction_weight_ulimit = 1
+attraction_weight_llimit = -1
 # define base vision radius mean
-cell_vision_scale_mean = 2
-cell_vision_scale_std = 0.5
+vision_scale_mean = 2
+vision_scale_std = 0.5
 # define cell vision radius limits
-cell_vision_scale_llimit = 1.01
-cell_vision_scale_ulimit = 20
+vision_scale_llimit = 1.01
+vision_scale_ulimit = 20
 # define base vision nconsidered mean
-cell_vision_nconsidered_mean = 2
-cell_vision_nconsidered_std = 0.5
+vision_nconsidered_mean = 2
+vision_nconsidered_std = 0.5
 # define cell vision nconsidered limits
-cell_vision_nconsidered_llimit = 1
-cell_vision_nconsidered_ulimit = 100
+vision_nconsidered_llimit = 1
+vision_nconsidered_ulimit = 100
 # define cell direction pause mean
 # TODO: make it so cells only move if there is food nearby?
-cell_direction_pause_mean = 0.1  # always moving
-cell_direction_pause_std = 0.025
+direction_pause_mean = 0.1  # always moving
+direction_pause_std = 0.025
 # define cell direction pause limits
-cell_direction_pause_llimit = 0
-cell_direction_pause_ulimit = 1
+direction_pause_llimit = 0
+direction_pause_ulimit = 1
 # define the cell's initial attributes and limitations
 # TODO: make this a function with an inputable rng
-cell_instantiation_information = {  # TODO: rename it pause
-    'cell_direction_pause': [instantiate_from_distribution, {'distribution':core_rng.normal, 'distribution_params':{'loc':cell_direction_pause_mean, 'scale':cell_direction_pause_std}, 'llimit':cell_direction_pause_llimit, 'ulimit':cell_direction_pause_ulimit, 'continous':False}],
-    'cell_cycle': [instantiate_from_distribution, {'distribution':core_rng.normal, 'distribution_params':{'loc':cell_cycle_mean, 'scale':cell_cycle_std}, 'llimit':cell_cycle_llimit, 'ulimit':cell_cycle_ulimit, 'continous':False}],
-    'cell_repulsion_weight': [instantiate_from_distribution, {'distribution':core_rng.normal, 'distribution_params':{'loc':cell_repulsion_weight_mean, 'scale':cell_repulsion_weight_std}, 'llimit':cell_repulsion_weight_llimit, 'ulimit':cell_repulsion_weight_ulimit, 'continous':False}],
-    'cell_attraction_weight': [instantiate_from_distribution, {'distribution':core_rng.normal, 'distribution_params':{'loc':cell_attraction_weight_mean, 'scale':cell_attraction_weight_std}, 'llimit':cell_attraction_weight_llimit, 'ulimit':cell_attraction_weight_ulimit, 'continous':False}],
-    'cell_vision_scale': [instantiate_from_distribution, {'distribution':core_rng.normal, 'distribution_params':{'loc':cell_vision_scale_mean, 'scale':cell_vision_scale_std}, 'llimit':cell_vision_scale_llimit, 'ulimit':cell_vision_scale_ulimit, 'continous':False}],
-    'cell_vision_nconsidered': [instantiate_from_distribution, {'distribution':core_rng.normal, 'distribution_params':{'loc':cell_vision_nconsidered_mean, 'scale':cell_vision_nconsidered_std}, 'llimit':cell_vision_nconsidered_llimit, 'ulimit':cell_vision_nconsidered_ulimit, 'continous':False}],
-    'cell_mutational_rate': [instantiate_from_distribution, {'distribution':core_rng.normal, 'distribution_params':{'loc':cell_mutational_rate_mean, 'scale':cell_mutational_rate_std}, 'llimit':cell_mutational_rate_llimit, 'ulimit':cell_mutational_rate_ulimit, 'continous':False}],
+instantiation_information = {  # TODO: rename it pause
+    'direction_pause': [instantiate_from_distribution, {'distribution':core_rng.normal, 'distribution_params':{'loc':direction_pause_mean, 'scale':direction_pause_std}, 'llimit':direction_pause_llimit, 'ulimit':direction_pause_ulimit, 'continous':False}],
+    'cycle': [instantiate_from_distribution, {'distribution':core_rng.normal, 'distribution_params':{'loc':cycle_mean, 'scale':cycle_std}, 'llimit':cycle_llimit, 'ulimit':cycle_ulimit, 'continous':False}],
+    'repulsion_weight': [instantiate_from_distribution, {'distribution':core_rng.normal, 'distribution_params':{'loc':repulsion_weight_mean, 'scale':repulsion_weight_std}, 'llimit':repulsion_weight_llimit, 'ulimit':repulsion_weight_ulimit, 'continous':False}],
+    'attraction_weight': [instantiate_from_distribution, {'distribution':core_rng.normal, 'distribution_params':{'loc':attraction_weight_mean, 'scale':attraction_weight_std}, 'llimit':attraction_weight_llimit, 'ulimit':attraction_weight_ulimit, 'continous':False}],
+    'vision_scale': [instantiate_from_distribution, {'distribution':core_rng.normal, 'distribution_params':{'loc':vision_scale_mean, 'scale':vision_scale_std}, 'llimit':vision_scale_llimit, 'ulimit':vision_scale_ulimit, 'continous':False}],
+    'vision_nconsidered': [instantiate_from_distribution, {'distribution':core_rng.normal, 'distribution_params':{'loc':vision_nconsidered_mean, 'scale':vision_nconsidered_std}, 'llimit':vision_nconsidered_llimit, 'ulimit':vision_nconsidered_ulimit, 'continous':False}],
+    'mutational_rate': [instantiate_from_distribution, {'distribution':core_rng.normal, 'distribution_params':{'loc':mutational_rate_mean, 'scale':mutational_rate_std}, 'llimit':mutational_rate_llimit, 'ulimit':mutational_rate_ulimit, 'continous':False}],
 }
 # define the filename to track data in
 track_filename = 'track'
@@ -280,21 +280,21 @@ window_diagonal = np.linalg.norm([window_width, window_height])
 background_color = '#ffffff'
 vent_fillcolor = vent_edgecolor = 'forestgreen'
 # define initial populations
-initial_num_food = 50  # number of starting pieces of food
-food_per_round = 10  # get new pieces of food per round
+initial_num_vents = 2  # how many vents we start with
+food_per_vent_per_round = 10  # get new pieces of food per round for each vent
 initial_num_cells = 20  # how many cells do we start with
 # define object radius
 food_radius = min(window_width,window_height) * 0.01 / 2  # diameter is 1% of the smallest dimension
 cell_radius = min(window_width,window_height) * 0.025 / 2  # diameter is 2.5% of the smallest dimension
 vent_radius = min(window_width,window_height) * 0.075 / 2  # diameter is 7.5% of the smallest dimension
 # define cell characteristics
-cell_age_of_death = 25  # number of rounds total
-cell_step = min(window_width,window_height) * 0.01 / 2  # take 1% of the smallest dimension
-cell_health = 0  # basically the handicap for the cell to divide
-cell_threshold_to_divide = 1  # eaten one more food than movement
-cell_metabolic_cost = 0.05  # a movement has X% metabolic cost so moving costs X% of the step size
+age_of_death = 25  # number of rounds total
+step = min(window_width,window_height) * 0.01 / 2  # take 1% of the smallest dimension
+health = 0  # basically the handicap for the cell to divide
+threshold_to_divide = 1  # eaten one more food than movement
+metabolic_cost = 0.05  # a movement has X% metabolic cost so moving costs X% of the step size
 # define vent characteristics
 vent_random_overlap = False  # whether or not it is okay to have overlap
 # define food characteristics
-max_food_step = min(window_width,window_height) * 0.025 / 2  # take 2.5% of the smallest dimension
+max_food_step = min(window_width,window_height) * 0.075 / 2  # take 7.5% of the smallest dimension
 min_food_step = 0

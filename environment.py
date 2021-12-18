@@ -29,10 +29,10 @@ if(os.path.exists('outputs/')):
     os.system('rm -rf outputs/')
 os.mkdir('outputs/')
 # create initial number of cells
-cells = [Cell(canvas) for _ in range(initial_num_cells)]
-cells_attrs = np.array([np.append(cell.radius, cell.center) for cell in cells])  # TODO: do the conversion here where just get all the attributes
 vents = [Vent(canvas) for _ in range(initial_num_vents)]
 vents_attrs = np.array([np.append(vent.radius, vent.center) for vent in vents])  # TODO: do the conversion here where just get all the attributes
+cells = [Cell(canvas) for _ in range(initial_num_cells)]
+cells_attrs = np.array([np.append(cell.radius, cell.center) for cell in cells])  # TODO: do the conversion here where just get all the attributes
 # prepare for cell number tracking
 with open(f'outputs/{track_filename}.txt', 'wt') as f:
     f.writelines('round,clone,count\n')
@@ -43,23 +43,27 @@ round_num = 0  # track the number of rounds we can have the cells survive in
 round_label = Label(window, text=f'Round {round_num}')  # add label
 round_label.grid(row=0, column=0, sticky=NW)  # configure it to top left
 measure_first = time.time()  # DEBUGGING
-while(len(cells) > 0 and round_num < 20):  # keep looping through the rounds as long as there are cells
+while(len(cells) > 0):  # keep looping through the rounds as long as there are cells
     # > instantiate round
     start_time = time.time()  # track start time
     round_num += 1  # add to round number
     round_label['text'] = f'Round {round_num}'
     # > complete vent actions for this round
-    food.add_food_random_ntimes(food_per_round)
+    for vent in vents:
+        if(vent.foods):
+            vent.diffuse_foods()
+        for _ in range(food_per_vent_per_round):
+            vent.add_food()
     # > complete cellular actions for this round
     cells_acted = True  # track if the cell has acted
-    cell_cycle_round = 1  # track the cell cycle round we're on
+    cycle_round = 1  # track the cell cycle round we're on
     while(cells_acted):  # keep looping until cells cannot act
         cells_acted = False  # instantiate no action yet
-        for idx, cell in enumerate(cells):  # loop through each cell
-            if(cell.cell_alive):  # check if marked for death
-                if(cell.get_cell_cycle() >= cell_cycle_round):  # only move if allowed
-                    cell.move(food, cells_attrs)  # move the cell
-                    n_eaten = food.get_eaten(cell)  # check if cell can eat food and how much
+        for idx,cell in enumerate(cells):  # loop through each cell
+            if(cell.alive):  # check if marked for death
+                if(cell.get_cycle() >= cycle_round):  # only move if allowed
+                    cell.move(vents, cells_attrs)  # move the cell
+                    n_eaten = cell.get_eaten(vents)  # check if cell can eat food and how much
                     if(n_eaten > 0):  # only compute further actions if needed
                         new_cell = cell.eat(n_eaten)
                         if(new_cell is not None):  # update environment
@@ -68,8 +72,8 @@ while(len(cells) > 0 and round_num < 20):  # keep looping through the rounds as 
                     cells_acted = True  # at least one cell could act
             else:  # kill the cell
                 cell.die()
-                remove_from_env(cell, idx, cells, cells_attrs)
-        cell_cycle_round += 1
+                cells,cells_attrs = remove_from_env(cell, idx, cells, cells_attrs)
+        cycle_round += 1
     # > record values
     record_snapshot(cells, round_num)
     record_population(cells, round_num)
@@ -80,7 +84,7 @@ while(len(cells) > 0 and round_num < 20):  # keep looping through the rounds as 
 measure_last = time.time() - measure_first  # DEBUGGING
 print(measure_last)  # DEBUGGING
 # report survival
-print(f'Survived a total of {round_num} rounds for cells with lifespan of {cell_age_of_death}')
+print(f'Survived a total of {round_num} rounds for cells with lifespan of {age_of_death}')
 # analyze data
 analyze_history()  # using the tracking file
 # run simulation

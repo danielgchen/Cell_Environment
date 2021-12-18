@@ -3,37 +3,6 @@ import numpy as np
 # import constants
 from utils import *
 
-def add_food_custom(self, center):
-    '''
-    given an x and y coordinate add a piece of food given a constant food_radius
-    '''
-    # get the coordinates for the oval
-    tl_x,tl_y,br_x,br_y = get_oval_coords(center=center, radius=food_radius)
-    # plot the piece of food at the mouse position
-    food = self.canvas.create_oval(tl_x, tl_y, br_x, br_y, fill='green', outline='forestgreen')
-    # track the instantiated piece of food
-    self.foods.append((food,center)) # add the object to track
-    self.foods_attrs = np.append(self.foods_attrs, center, 0)
-
-
-def add_food_random(self, rng=None):
-    '''
-    default function to add food to a random location
-    '''
-    # set random generator defaults to core
-    if(rng is None): rng = core_rng
-    # get random position
-    center = get_rand_coords(padding=food_radius)
-    # >>>>>>> purely for testing
-    angle = get_rand_angle()
-    x,y = np.cos(angle), np.sin(angle)
-    x,y = np.cos(angle), np.sin(angle)
-    scale = rng.uniform(100,125)
-    x,y = x*scale + window_width / 2, y*scale + window_height / 2
-    center = x,y
-    # <<<<<<< purely for testing
-    # call helper function
-    self.add_food_custom(center)
 
 def get_detected(self, center, radius):
     '''
@@ -50,20 +19,3 @@ def get_detected(self, center, radius):
         if(x >= ck_x_min and x <= ck_x_max and y >= ck_y_min and y <= ck_y_max):
             valid_foods.append((food,(x,y)))
     return valid_foods
-
-
-def get_eaten(self, cell):
-    '''
-    checks if a cell is overlapping with the food, in this case we define overlapping as cell barrier
-    is touching the food center, so cell center - food center - cell radius <= food radius
-    '''
-    # set tracking variables
-    eaten = 0  # track if a food was indeed eaten
-    # work through all currently existing foods
-    valid_foods = membrane_to_center_objectlist(cell.cell_center, cell.cell_radius, self.foods, 1, False)
-    for food,food_center in valid_foods:
-        if(membrane_to_center_overlap(cell.cell_center, cell.cell_radius, food_center, 1, False)):
-            eaten += 1  # count how many we're eaten
-            self.canvas.delete(food)  # remove from canvas
-            self.foods.remove((food, food_center))
-    return eaten

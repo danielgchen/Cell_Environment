@@ -20,6 +20,7 @@ def remove_from_env(object, idx, objects, objects_attrs):
     given an old object it removes it from the enviroment
     '''
     # remove it from the list of tkinter objects
-    objects = objects.remove(object)
+    objects.remove(object)
     # remove it from the list of attributes
-    objects_attrs = np.delete(objects_attrs, idx)
+    objects_attrs = np.delete(objects_attrs, idx, axis=0)
+    return objects, objects_attrs
