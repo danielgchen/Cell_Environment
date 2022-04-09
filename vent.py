@@ -50,7 +50,7 @@ class Vent:
         temperature based probability movement function where the probability
         is based on the magnitude from the source
         '''
-        if(len(self.foods) > 0):
+        if (len(self.foods) > 0):
             for idx,food in enumerate(self.foods):
                 # mathematically update the values
                 food_center = self.foods_attrs[idx,1:]  # get the row of information
@@ -61,6 +61,22 @@ class Vent:
                 # physically update the object
                 tl_x,tl_y,br_x,br_y = get_oval_coords(center=food.center, radius=food.radius)
                 food.canvas.coords(food.blob, tl_x, tl_y, br_x, br_y)
+                # update age of the food
+                food.age += 1
+
+
+    def clean_foods(self):
+        '''
+        removes all of the food that are older than the set lifespan
+        '''
+        idx = 0
+        while (idx != len(self.foods)):
+            food = self.foods[idx]
+            if (food.age >= food_lifespan):  # remove if we can
+                food.die()
+                self.remove_food(food)
+            else:  # move forward
+                idx += 1
 
 
     # removes an old piece of food

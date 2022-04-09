@@ -201,6 +201,7 @@ class Cell:
 
 
     def die(self):
+        # TODO: add the x
         '''
         kill the cell, leave an x and delete the original cell
         '''
@@ -242,5 +243,7 @@ class Cell:
                     eaten += 1  # count how many we're eaten
                     idx -= shifts
                     shifts += 1
-                    vent.remove_food(vent.foods[idx])
+                    food = vent.foods[idx]
+                    food.die()
+                    vent.remove_food(food)
         return eaten

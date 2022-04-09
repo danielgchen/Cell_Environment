@@ -51,6 +51,7 @@ while(len(cells) > 0):  # keep looping through the rounds as long as there are c
     # > complete vent actions for this round
     for vent in vents:
         if(vent.foods):
+            vent.clean_foods()
             vent.diffuse_foods()
         for _ in range(food_per_vent_per_round):
             vent.add_food()

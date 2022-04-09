@@ -298,3 +298,4 @@ vent_random_overlap = False  # whether or not it is okay to have overlap
 # define food characteristics
 max_food_step = min(window_width,window_height) * 0.075 / 2  # take 7.5% of the smallest dimension
 min_food_step = 0
+food_lifespan = 10
