@@ -16,15 +16,15 @@ class Vent:
         self.radius = vent_radius if radius is None else radius
         self.center = get_rand_coords(padding=self.radius) if center is None else center
         # physically create the vent
-        # TODO: change all namings to blob
+        # TODO: change all namings to blob FINISHED
         tl_x,tl_y,br_x,br_y = get_oval_coords(self.center, self.radius)
         self.blob = self.canvas.create_oval(tl_x, tl_y, br_x, br_y, fill='forestgreen', outline='forestgreen')
         # setup the food attributes
         self.foods = []
-        self.foods_attrs = np.empty((0,n_dims + 1))
+        self.foods_attrs = np.empty((0, n_dims + 1))  # 2d array, the shape of no rows and one more rows
 
 
-    # adds a new piece of food at any given location or randomly
+    # adds a new piece of food at a given location if no location then specified then random
     def _add_food(self, center=None, radius=None):
         '''
         method to add a new piece of food at a given center and given radius
@@ -33,16 +33,18 @@ class Vent:
         self.foods, self.foods_attrs = add_to_env(food, self.foods, self.foods_attrs)
 
 
-    # adds a new piece of food from the center of the vent
+    # adds a new piece of food from the center of the vent, this is the default function
     def add_food(self):
         '''
         method to add a new piece of food within the vent
         '''
-        # TODO: make sure to make it so it can be anywhere in the vent
+        # limiting assumption that the food appears at the center of the vent
+        # TODO: add probability based distribution of values
         self._add_food(center=self.center)
 
 
     # diffuses foods in brownian motion in a radiating manner away from the vent
+    # TODO: build in inter-vent communication and co-vent differences in acceleration of heating
     def diffuse_foods(self):
         '''
         temperature based probability movement function where the probability

@@ -6,7 +6,7 @@ define all of the constants needed for the simulatons
 '''
 
 # create pseudo random number bit generator that will used for this entire process
-core_rng = np.random.default_rng(0)  # set the seed as 0
+core_rng = np.random.default_rng()  # set the seed as 0
 
 # define base method for calling any function
 # TODO: creating testing function for this

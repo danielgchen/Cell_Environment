@@ -59,6 +59,7 @@ while(len(cells) > 0):  # keep looping through the rounds as long as there are c
     cycle_round = 1  # track the cell cycle round we're on
     while(cells_acted):  # keep looping until cells cannot act
         cells_acted = False  # instantiate no action yet
+        idx_adjuster = 0
         for idx,cell in enumerate(cells):  # loop through each cell
             if(cell.alive):  # check if marked for death
                 if(cell.get_cycle() >= cycle_round):  # only move if allowed
@@ -67,12 +68,13 @@ while(len(cells) > 0):  # keep looping through the rounds as long as there are c
                     if(n_eaten > 0):  # only compute further actions if needed
                         new_cell = cell.eat(n_eaten)
                         if(new_cell is not None):  # update environment
-                            add_to_env(new_cell, cells, cells_attrs)
+                            cells, cells_attrs = add_to_env(new_cell, cells, cells_attrs)
                     window.update()  # update the window with move + divide
                     cells_acted = True  # at least one cell could act
             else:  # kill the cell
                 cell.die()
-                cells,cells_attrs = remove_from_env(cell, idx, cells, cells_attrs)
+                cells, cells_attrs = remove_from_env(cell, idx - idx_adjuster, cells, cells_attrs)
+                idx_adjuster += 1
         cycle_round += 1
     # > record values
     record_snapshot(cells, round_num)

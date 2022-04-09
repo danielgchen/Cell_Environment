@@ -43,7 +43,7 @@ def analyze_history():
 
 def analyze_traits():
     # compile the dataframe
-    columns = ['cell_color', 'cell_radius', 'cell_center', 'cell_age', 'cell_health', 'cell_metabolic_cost', 'cell_direction_pause', 'cell_direction_angle', 'cell_cycle', 'cell_direction_remember', 'cell_vision_scale', 'cell_vision_nconsidered', 'cell_mutational_rate', 'cell_mutation_information']
+    columns = ['color', 'radius', 'center', 'age', 'health', 'metabolic_cost', 'direction_pause', 'direction_angle', 'cycle', 'direction_remember', 'vision_scale', 'vision_nconsidered', 'mutational_rate', 'mutation_information']
     ss_df = pd.DataFrame(columns = columns + ['timeshot'])
     for fname in tqdm(glob('outputs/*.csv')):
         ss_df_subset = pd.read_csv(fname, index_col=0)
@@ -52,29 +52,29 @@ def analyze_traits():
     ss_df = ss_df.sort_values('timeshot')
     # get the timepoints
     def count(rows):
-        return len(set(rows['cell_color']))
-    timeshot_nctypes = ss_df[['cell_color','timeshot']].groupby('timeshot').apply(count)
+        return len(set(rows['color']))
+    timeshot_nctypes = ss_df[['color','timeshot']].groupby('timeshot').apply(count)
     timeshot_b4domination = timeshot_nctypes[timeshot_nctypes > 1].index.max()
     # get the cell colors
-    ss_mean_df = ss_df.groupby(['cell_color','timeshot']).mean()
-    cell_colors = list(set([arr[0] for arr in ss_mean_df.index]))
+    ss_mean_df = ss_df.groupby(['color','timeshot']).mean()
+    colors = list(set([arr[0] for arr in ss_mean_df.index]))
     # get the plots
-    for col in ss_mean_df.loc[cell_colors[0]].columns:
+    for col in ss_mean_df.loc[colors[0]].columns:
         # > plot all timepoints
         fig,ax = plt.subplots(figsize=[8,4])
         ax.grid(False)
-        for cell_color in cell_colors:
-            ss_mean_df_subset = ss_mean_df.loc[cell_color]
-            ax.plot(ss_mean_df_subset.index, ss_mean_df_subset[col], color=cell_color)
+        for color in colors:
+            ss_mean_df_subset = ss_mean_df.loc[color]
+            ax.plot(ss_mean_df_subset.index, ss_mean_df_subset[col], color=color)
         ax.set(xlabel='Time', ylabel=col.replace('_',' ').title(), title='All Timepoints')
         fig.savefig(f'analysis/trait_{col}.alltps.png', dpi=300)
         # > plot before cell type singularity
         fig,ax = plt.subplots(figsize=[8,4])
         ax.grid(False)
-        for cell_color in cell_colors:
-            ss_mean_df_subset = ss_mean_df.loc[cell_color]
+        for color in colors:
+            ss_mean_df_subset = ss_mean_df.loc[color]
             ss_mean_df_subset = ss_mean_df_subset[ss_mean_df_subset.index <= timeshot_b4domination]
-            ax.plot(ss_mean_df_subset.index, ss_mean_df_subset[col], color=cell_color)
+            ax.plot(ss_mean_df_subset.index, ss_mean_df_subset[col], color=color)
         ax.set(xlabel='Time', ylabel=col.replace('_',' ').title(), title='Time till Cell Type Singularity')
         fig.savefig(f'analysis/trait_{col}.tpb4sctype.png', dpi=300)
 
