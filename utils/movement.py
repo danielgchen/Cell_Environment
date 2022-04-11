@@ -8,14 +8,13 @@ def get_food_diffusion(food_center, vent_center, rng=None):
     distance from the origin of the vent normalized to halt at a min and max
     '''
     rng = rng if rng is not None else core_rng
-    step_res = 4  # defines the positive and negative cuts TODO: put this in core
     # define the difference vector
-    diffs = np.array([rng.integers(-step_res, step_res) for _ in range(n_dims)], dtype='float')
+    diffs = np.array([rng.integers(-food_step_res, food_step_res) for _ in range(n_dims)], dtype='float')
     # scale the difference vector to the max step possible
     dividing_factor = np.sqrt(np.power(diffs, 2).sum() / np.power(max_food_step, 2))
     diffs /= dividing_factor if dividing_factor != 0 else 1  # no movement
     # scale the dividing vector by it's distance from the vent
-    scaling_factor = (window_diagonal - np.linalg.norm(food_center - vent_center)) / window_diagonal
+    scaling_factor = (window_diagonal + np.linalg.norm(food_center - vent_center)) / window_diagonal
     diffs = scaling_factor * diffs
     # up to the minimum food step if needed
     if(min_food_step > np.linalg.norm(diffs)):

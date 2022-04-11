@@ -111,8 +111,15 @@ class Cell:
         # - age the cell
         self.age += 1  # as increased cell cycle means more moves per round more likely to accrue fatal mutation
         # - check if cell needs to die
-        if(self.age > age_of_death):
-            self.alive = False  # marked for apoptosis
+        self.check_death()
+
+
+    def check_death(self):
+        '''
+        checks if the metabolic health of the cell has surpassed the death barrier
+        '''
+        if (self.health < threshold_to_die or self.age > age_of_death):  # checking if the cell should die
+            self.alive = False
 
 
     def eat(self, n_eaten):

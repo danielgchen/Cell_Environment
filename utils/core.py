@@ -280,9 +280,9 @@ window_diagonal = np.linalg.norm([window_width, window_height])
 background_color = '#ffffff'
 vent_fillcolor = vent_edgecolor = 'forestgreen'
 # define initial populations
-initial_num_vents = 2  # how many vents we start with
+initial_num_vents = 5  # how many vents we start with
 food_per_vent_per_round = 10  # get new pieces of food per round for each vent
-initial_num_cells = 20  # how many cells do we start with
+initial_num_cells = 50  # how many cells do we start with
 # define object radius
 food_radius = min(window_width,window_height) * 0.01 / 2  # diameter is 1% of the smallest dimension
 cell_radius = min(window_width,window_height) * 0.025 / 2  # diameter is 2.5% of the smallest dimension
@@ -293,9 +293,11 @@ step = min(window_width,window_height) * 0.01 / 2  # take 1% of the smallest dim
 health = 0  # basically the handicap for the cell to divide
 threshold_to_divide = 1  # eaten one more food than movement
 metabolic_cost = 0.05  # a movement has X% metabolic cost so moving costs X% of the step size
+threshold_to_die = -1000  # has moved ten times more than it has eaten food
 # define vent characteristics
 vent_random_overlap = False  # whether or not it is okay to have overlap
 # define food characteristics
-max_food_step = min(window_width,window_height) * 0.075 / 2  # take 7.5% of the smallest dimension
+food_step_res = 4  # resolution of the food
+max_food_step = min(window_width,window_height) * 0.15 / 2  # take 15% of the smallest dimension
 min_food_step = 0
 food_lifespan = 10

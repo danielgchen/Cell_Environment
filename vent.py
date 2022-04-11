@@ -54,8 +54,7 @@ class Vent:
             for idx,food in enumerate(self.foods):
                 # mathematically update the values
                 food_center = self.foods_attrs[idx,1:]  # get the row of information
-                vent_center = self.center  # assign to a variable for ease of reading
-                food_center = adjust_coords(get_food_diffusion(food_center, vent_center))
+                food_center = adjust_coords(get_food_diffusion(food_center, self.center))
                 # update the object
                 food.center,self.foods_attrs[idx,1:] = food_center, food_center
                 # physically update the object
