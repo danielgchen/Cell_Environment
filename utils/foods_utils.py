@@ -1,8 +1,8 @@
 # import packages
 import numpy as np
 # import constants
-from utils import *
-
+from .core import *
+from matplotlib.colors import to_hex
 
 def get_detected(self, center, radius):
     '''
@@ -19,3 +19,10 @@ def get_detected(self, center, radius):
         if(x >= ck_x_min and x <= ck_x_max and y >= ck_y_min and y <= ck_y_max):
             valid_foods.append((food,(x,y)))
     return valid_foods
+
+
+def get_food_color(age):
+    '''
+    retrieves the color from the given age
+    '''
+    return to_hex(food_cmap(age / food_lifespan))

@@ -1,5 +1,6 @@
 import numpy as np
 from multiprocessing import Pool, cpu_count
+from matplotlib import cm
 
 '''
 define all of the constants needed for the simulatons
@@ -208,7 +209,8 @@ def get_metabolic_cost(base_cost, age, mutational_rate, health):
     metabolic_cost = get_weighted_mean(weights) * base_cost
     return metabolic_cost
 
-
+# define pseudocount
+pseudocount = 1e-10
 # define base mutational rate mean
 # > this represents the chance of mutation and the std represents the
 #   max change of all mutational rates as if we hit the max twice we should
@@ -216,13 +218,13 @@ def get_metabolic_cost(base_cost, age, mutational_rate, health):
 mutational_rate_mean = 0.25
 mutational_rate_std = 0.05
 # define cell mutational rate limits
-mutational_rate_llimit = 1e-10
+mutational_rate_llimit = pseudocount
 mutational_rate_ulimit = 1
 # define base cell cycle mean
 cycle_mean = 1
 cycle_std = 0.1
 # define cell cycle limits
-cycle_llimit = 0.5 + 1e-10  # below one in case it wants to encode for a suppressive function
+cycle_llimit = 0.5 + pseudocount  # below one in case it wants to encode for a suppressive function
 cycle_ulimit = 5
 # define base repulsion weight mean
 # TODO: deprecate all  prefixs
@@ -272,7 +274,7 @@ track_filename = 'track'
 # define the number of dimensions
 n_dims = 2
 # define delay in time between rounds
-round_delay = 0  # in seconds
+round_delay = 0.1  # in seconds
 # define canvas size
 window_width,window_height = 500,500
 window_diagonal = np.linalg.norm([window_width, window_height])
@@ -280,9 +282,9 @@ window_diagonal = np.linalg.norm([window_width, window_height])
 background_color = '#ffffff'
 vent_fillcolor = vent_edgecolor = 'forestgreen'
 # define initial populations
-initial_num_vents = 5  # how many vents we start with
+initial_num_vents = 1  # how many vents we start with
 food_per_vent_per_round = 10  # get new pieces of food per round for each vent
-initial_num_cells = 50  # how many cells do we start with
+initial_num_cells = 1  # how many cells do we start with
 # define object radius
 food_radius = min(window_width,window_height) * 0.01 / 2  # diameter is 1% of the smallest dimension
 cell_radius = min(window_width,window_height) * 0.025 / 2  # diameter is 2.5% of the smallest dimension
@@ -293,11 +295,12 @@ step = min(window_width,window_height) * 0.01 / 2  # take 1% of the smallest dim
 health = 0  # basically the handicap for the cell to divide
 threshold_to_divide = 1  # eaten one more food than movement
 metabolic_cost = 0.05  # a movement has X% metabolic cost so moving costs X% of the step size
-threshold_to_die = -1000  # has moved ten times more than it has eaten food
+threshold_to_die = -10  # has moved ten times more than it has eaten food
 # define vent characteristics
 vent_random_overlap = False  # whether or not it is okay to have overlap
 # define food characteristics
 food_step_res = 4  # resolution of the food
-max_food_step = min(window_width,window_height) * 0.15 / 2  # take 15% of the smallest dimension
-min_food_step = 0
+init_food_step = vent_radius  # basically lets consider the equivalent push is at the one step away
+max_food_step = vent_radius * 5  # basically lets consider the equivalent push is at the one step away
 food_lifespan = 10
+food_cmap = cm.get_cmap('RdYlGn_r')

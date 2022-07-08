@@ -45,7 +45,7 @@ class Vent:
 
     # diffuses foods in brownian motion in a radiating manner away from the vent
     # TODO: build in inter-vent communication and co-vent differences in acceleration of heating
-    def diffuse_foods(self):
+    def diffuse_foods(self, vents_attrs):
         '''
         temperature based probability movement function where the probability
         is based on the magnitude from the source
@@ -54,14 +54,15 @@ class Vent:
             for idx,food in enumerate(self.foods):
                 # mathematically update the values
                 food_center = self.foods_attrs[idx,1:]  # get the row of information
-                food_center = adjust_coords(get_food_diffusion(food_center, self.center))
+                # cycle through vents and get the diffusion
+                if (food.age == 0):
+                    food_center = adjust_coords(get_food_instantiation(food_center))
+                else:
+                    food_center = adjust_coords(get_food_diffusion(food_center, vents_attrs))
                 # update the object
-                food.center,self.foods_attrs[idx,1:] = food_center, food_center
+                food.center, self.foods_attrs[idx,1:] = food_center, food_center
                 # physically update the object
-                tl_x,tl_y,br_x,br_y = get_oval_coords(center=food.center, radius=food.radius)
-                food.canvas.coords(food.blob, tl_x, tl_y, br_x, br_y)
-                # update age of the food
-                food.age += 1
+                food.move(food_center)  # move the food to a new center
 
 
     def clean_foods(self):

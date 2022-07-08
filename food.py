@@ -20,6 +20,20 @@ class Food:
         self.age = 0
 
 
+    def move(self, center):
+        '''
+        move the food to a new center
+        '''
+        # perform updates
+        self.center = center  # set new center
+        self.age += 1  # update age of the food
+        # delete old circle
+        self.canvas.delete(self.blob)
+        # create new circle
+        tl_x,tl_y,br_x,br_y = get_oval_coords(center=self.center, radius=self.radius)  # calculate oval
+        self.blob = self.canvas.create_oval(tl_x, tl_y, br_x, br_y, fill=get_food_color(self.age), outline='forestgreen')
+
+
     def die(self):
         '''
         kill the food

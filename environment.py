@@ -43,7 +43,7 @@ round_num = 0  # track the number of rounds we can have the cells survive in
 round_label = Label(window, text=f'Round {round_num}')  # add label
 round_label.grid(row=0, column=0, sticky=NW)  # configure it to top left
 measure_first = time.time()  # DEBUGGING
-while(len(cells) > 0):  # keep looping through the rounds as long as there are cells
+while(len(cells) > -10):  # keep looping through the rounds as long as there are cells
     # > instantiate round
     start_time = time.time()  # track start time
     round_num += 1  # add to round number
@@ -52,7 +52,7 @@ while(len(cells) > 0):  # keep looping through the rounds as long as there are c
     for vent in vents:
         if(vent.foods):
             vent.clean_foods()
-            vent.diffuse_foods()
+            vent.diffuse_foods(vents_attrs)
         for _ in range(food_per_vent_per_round):
             vent.add_food()
     # > complete cellular actions for this round
